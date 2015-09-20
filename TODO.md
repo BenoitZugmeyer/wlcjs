@@ -3,7 +3,7 @@ TODO
 
 - [x] `wlc_init(const struct wlc_interface *interface, int argc, char *argv[]) -> bool`
 - [x] `wlc_run(void) -> void`
-- [ ] `wlc_log_set_handler(void (*cb)(enum wlc_log_type type, const char *str)) -> void`
+- [x] `wlc_log_set_handler(void (*cb)(enum wlc_log_type type, const char *str)) -> void`
 - [ ] `wlc_terminate(void) -> void`
 - [ ] `wlc_get_backend_type(void) -> enum wlc_backend_type`
 - [ ] `wlc_exec(const char *bin, char *const args[]) -> void`
