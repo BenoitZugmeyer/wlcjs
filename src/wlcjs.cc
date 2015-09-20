@@ -12,23 +12,13 @@ int run_uv_loop(void *args) {
   return 1;
 }
 
-const char* log_type_to_string(enum wlc_log_type type) {
-  switch (type) {
-    case WLC_LOG_INFO: return "info";
-    case WLC_LOG_WARN: return "warn";
-    case WLC_LOG_ERROR: return "error";
-    case WLC_LOG_WAYLAND: return "wayland";
-    default: return "unknown";
-  }
-}
-
 void log_handler(enum wlc_log_type type, const char *str) {
   if (persistent_log_handler.IsEmpty()) return;
   Isolate* isolate = persistent_log_handler.GetIsolate();
   HandleScope scope(isolate);
   Local<Function> log_handler = Local<Function>::New(isolate, persistent_log_handler);
   Local<Value> arguments[] = {
-    S(log_type_to_string(type)),
+    S(enum_to_string(type)),
     S(str),
   };
   log_handler->Call(Null(isolate), 2, arguments);

@@ -51,6 +51,9 @@ private:
 wlc_interface* get_wlc_interface(Local<Object>);
 bool is_initalized();
 
+const char* enum_to_string(wlc_log_type);
+const char* enum_to_string(wlc_backend_type);
+
 }
 
 #endif
