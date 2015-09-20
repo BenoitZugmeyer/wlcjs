@@ -9,5 +9,6 @@
   "author": "Benoît Zugmeyr <benoit@zugmeyer.com>",
   "license": "MIT",
   "dependencies": {
+    "bindings": "^1.2.1"
   }
 }
