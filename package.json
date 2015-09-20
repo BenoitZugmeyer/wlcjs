@@ -1,0 +1,13 @@
+{
+  "name": "wlcjs",
+  "version": "1.0.0-dev",
+  "description": "WLC bindings for nodejs",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Benoît Zugmeyr <benoit@zugmeyer.com>",
+  "license": "MIT",
+  "dependencies": {
+  }
+}
