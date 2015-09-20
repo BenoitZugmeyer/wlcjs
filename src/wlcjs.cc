@@ -1,5 +1,7 @@
 #include "wlcjs.h"
 
+namespace wlcjs {
+
 wlc_event_source* timer = NULL;
 uv_timer_t async_run_timer;
 
@@ -52,3 +54,5 @@ void init(Local<Object> exports) {
 }
 
 NODE_MODULE(addon, init)
+
+}

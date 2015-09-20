@@ -8,6 +8,8 @@ extern "C" {
 #include <node.h>
 #include "uv.h"
 
+namespace wlcjs {
+
 using v8::Isolate;
 using v8::HandleScope;
 using v8::Object;
@@ -30,5 +32,7 @@ using v8::Array;
 
 wlc_interface* get_wlc_interface(Local<Object>);
 bool is_initalized();
+
+}
 
 #endif

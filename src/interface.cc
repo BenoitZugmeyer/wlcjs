@@ -1,5 +1,7 @@
 #include "wlcjs.h"
 
+namespace wlcjs {
+
 #define CALLBACK(NAME, CODE, ...) \
   Isolate* isolate = isolate_interface;\
   HandleScope scope(isolate);\
@@ -111,4 +113,6 @@ wlc_interface* get_wlc_interface(Local<Object> value) {
 
 bool is_initalized() {
   return !persistent_interface.IsEmpty();
+}
+
 }
