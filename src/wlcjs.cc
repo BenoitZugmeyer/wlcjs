@@ -4,11 +4,34 @@ namespace wlcjs {
 
 wlc_event_source* timer = NULL;
 uv_timer_t async_run_timer;
+SimplePersistent<Function> persistent_log_handler;
 
 int run_uv_loop(void *args) {
   uv_run(uv_default_loop(), UV_RUN_NOWAIT);
   wlc_event_source_timer_update(timer, 1);
   return 1;
+}
+
+const char* log_type_to_string(enum wlc_log_type type) {
+  switch (type) {
+    case WLC_LOG_INFO: return "info";
+    case WLC_LOG_WARN: return "warn";
+    case WLC_LOG_ERROR: return "error";
+    case WLC_LOG_WAYLAND: return "wayland";
+    default: return "unknown";
+  }
+}
+
+void log_handler(enum wlc_log_type type, const char *str) {
+  if (persistent_log_handler.IsEmpty()) return;
+  Isolate* isolate = persistent_log_handler.GetIsolate();
+  HandleScope scope(isolate);
+  Local<Function> log_handler = Local<Function>::New(isolate, persistent_log_handler);
+  Local<Value> arguments[] = {
+    S(log_type_to_string(type)),
+    S(str),
+  };
+  log_handler->Call(Null(isolate), 2, arguments);
 }
 
 void Init(const FunctionCallbackInfo<Value>& args) {
@@ -30,6 +53,8 @@ void Init(const FunctionCallbackInfo<Value>& args) {
     memcpy(argv[i], *v, v.length() + 1);
   }
 
+  wlc_log_set_handler(log_handler);
+
   wlc_init(get_wlc_interface(args[0]->ToObject()), argc, argv);
 }
 
@@ -48,9 +73,19 @@ void Run(const FunctionCallbackInfo<Value>& args) {
   uv_timer_start(&async_run_timer, run_cb, 0, 0);
 }
 
+void SetLogHandler(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+
+  if (args.Length() < 1) THROW(TypeError, "'handler' argument required");
+  if (!args[0]->IsFunction()) THROW(TypeError, "'handler' must be a function");
+
+  persistent_log_handler.Reset(args[0].As<Function>());
+}
+
 void init(Local<Object> exports) {
   NODE_SET_METHOD(exports, "init", Init);
   NODE_SET_METHOD(exports, "run", Run);
+  NODE_SET_METHOD(exports, "setLogHandler", SetLogHandler);
 }
 
 NODE_MODULE(addon, init)
