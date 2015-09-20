@@ -30,6 +30,24 @@ using v8::Array;
     return;\
 }
 
+template <class T>
+class SimplePersistent : public Persistent<T> {
+public:
+
+  template <class S>
+  V8_INLINE void Reset(const Local<S>& other) {
+    this->isolate = other->GetIsolate();
+    Persistent<S>::Reset(this->isolate, other);
+  }
+
+  V8_INLINE Isolate* GetIsolate() {
+    return this->isolate;
+  }
+
+private:
+  Isolate* isolate;
+};
+
 wlc_interface* get_wlc_interface(Local<Object>);
 bool is_initalized();
 

@@ -3,9 +3,9 @@
 namespace wlcjs {
 
 #define CALLBACK(NAME, CODE, ...) \
-  Isolate* isolate = isolate_interface;\
+  Isolate* isolate = persistent_interface.GetIsolate();\
   HandleScope scope(isolate);\
-  Local<Object> interface = Local<Object>::New(isolate_interface, persistent_interface);\
+  Local<Object> interface = Local<Object>::New(isolate, persistent_interface);\
   Local<Value> v = interface->Get(S(NAME));\
   if (v->IsFunction()) {\
     CODE\
@@ -13,8 +13,7 @@ namespace wlcjs {
     v.As<Function>()->Call(Null(isolate), sizeof(arguments) / sizeof(arguments[0]), arguments);\
   }
 
-Isolate* isolate_interface = NULL;
-Persistent<Object> persistent_interface;
+SimplePersistent<Object> persistent_interface;
 
 bool output_created(wlc_handle output) {
   CALLBACK("outputCreated", {});
@@ -105,8 +104,7 @@ wlc_interface global_interface = {
 
 wlc_interface* get_wlc_interface(Local<Object> value) {
   if (!is_initalized()) {
-    isolate_interface = value->GetIsolate();
-    persistent_interface.Reset(isolate_interface, value);
+    persistent_interface.Reset(value);
   }
   return &global_interface;
 }
