@@ -6,6 +6,21 @@ wlc_event_source* timer = NULL;
 uv_timer_t async_run_timer;
 SimplePersistent<Function> persistent_log_handler;
 
+#define ARG(I, TYPE, NAME) \
+  if (args.Length() <= I) THROW(TypeError, "Argument " #I " is required");\
+  if (!args[I]->Is ## TYPE ()) THROW(TypeError, "Argument " #I " must be a " #TYPE);\
+  Local<TYPE> NAME = args[I].As<TYPE>();
+
+#define RETURN(V) \
+  args.GetReturnValue().Set(V);\
+  return;
+
+#define FN(NAME, CODE) \
+  void NAME (const FunctionCallbackInfo<Value>& args) {\
+    Isolate* isolate = args.GetIsolate();\
+    CODE\
+  }
+
 int run_uv_loop(void *args) {
   uv_run(uv_default_loop(), UV_RUN_NOWAIT);
   wlc_event_source_timer_update(timer, 1);
@@ -24,12 +39,10 @@ void log_handler(enum wlc_log_type type, const char *str) {
   log_handler->Call(Null(isolate), 2, arguments);
 }
 
-void Init(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
+FN(Init,
+  ARG(0, Object, interface);
 
   if (is_initalized()) THROW(Error, "Can't call init twice");
-  if (args.Length() < 1) THROW(TypeError, "'interface' argument required");
-  if (!args[0]->IsObject()) THROW(TypeError, "'interface' must be an object");
 
   Local<Array> jsArgv = isolate->GetCurrentContext()->Global()
     ->Get(S("process")).As<Object>()
@@ -45,8 +58,8 @@ void Init(const FunctionCallbackInfo<Value>& args) {
 
   wlc_log_set_handler(log_handler);
 
-  wlc_init(get_wlc_interface(args[0]->ToObject()), argc, argv);
-}
+  wlc_init(get_wlc_interface(interface), argc, argv);
+)
 
 void run_cb(uv_timer_t* handle) {
   timer = wlc_event_loop_add_timer(run_uv_loop, NULL);
@@ -54,23 +67,18 @@ void run_cb(uv_timer_t* handle) {
   wlc_run();
 }
 
-void Run(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-
+FN(Run,
   if (!is_initalized()) THROW(Error, "Call init first");
 
   uv_timer_init(uv_default_loop(), &async_run_timer);
   uv_timer_start(&async_run_timer, run_cb, 0, 0);
-}
+)
 
-void SetLogHandler(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
+FN(SetLogHandler,
+  ARG(0, Function, handler);
 
-  if (args.Length() < 1) THROW(TypeError, "'handler' argument required");
-  if (!args[0]->IsFunction()) THROW(TypeError, "'handler' must be a function");
-
-  persistent_log_handler.Reset(args[0].As<Function>());
-}
+  persistent_log_handler.Reset(handler);
+)
 
 void init(Local<Object> exports) {
   NODE_SET_METHOD(exports, "init", Init);
