@@ -5,7 +5,7 @@ namespace wlcjs {
 #define CASE(E, T) case E: return T;
 
 #define ENUM_TEXT(TYPE, ...) \
-  inline const char* enum_to_string(enum wlc_ ## TYPE type) {\
+  const char* enum_to_string(enum wlc_ ## TYPE type) {\
     switch (type) {\
       __VA_ARGS__\
       default: return "unknown";\
