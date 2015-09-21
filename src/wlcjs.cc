@@ -80,10 +80,33 @@ FN(SetLogHandler,
   persistent_log_handler.Reset(handler);
 )
 
+FN(GetKeysymForKey,
+  ARG(0, Number, key);
+
+  uint32_t keysym = wlc_keyboard_get_keysym_for_key(key->Uint32Value(), NULL);
+
+  RETURN(Integer::NewFromUnsigned(isolate, keysym));
+)
+
+FN(GetKeysymStringForKey,
+  ARG(0, Number, key);
+
+  uint32_t keysym = wlc_keyboard_get_keysym_for_key(key->Uint32Value(), NULL);
+
+  RETURN(S(keysym_to_string(keysym)));
+)
+
+FN(GetBackendType,
+  RETURN(S(enum_to_string(wlc_get_backend_type())));
+)
+
 void init(Local<Object> exports) {
   NODE_SET_METHOD(exports, "init", Init);
   NODE_SET_METHOD(exports, "run", Run);
   NODE_SET_METHOD(exports, "setLogHandler", SetLogHandler);
+  NODE_SET_METHOD(exports, "getKeysymForKey", GetKeysymForKey);
+  NODE_SET_METHOD(exports, "getKeysymStringForKey", GetKeysymStringForKey);
+  NODE_SET_METHOD(exports, "getBackendType", GetBackendType);
 }
 
 NODE_MODULE(addon, init)

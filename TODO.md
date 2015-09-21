@@ -5,12 +5,12 @@ TODO
 - [x] `wlc_run(void) -> void`
 - [x] `wlc_log_set_handler(void (*cb)(enum wlc_log_type type, const char *str)) -> void`
 - [ ] `wlc_terminate(void) -> void`
-- [ ] `wlc_get_backend_type(void) -> enum wlc_backend_type`
+- [x] `wlc_get_backend_type(void) -> enum wlc_backend_type`
 - [ ] `wlc_exec(const char *bin, char *const args[]) -> void`
 - [ ] `wlc_keyboard_get_xkb_state(void) -> struct xkb_state*`
 - [ ] `wlc_keyboard_get_xkb_keymap(void) -> struct xkb_keymap*`
 - [ ] `wlc_keyboard_get_current_keys(size_t *out_memb) -> const uint32_t*`
-- [ ] `wlc_keyboard_get_keysym_for_key(uint32_t key, const struct wlc_modifiers *modifiers) -> uint32_t`
+- [x] `wlc_keyboard_get_keysym_for_key(uint32_t key, const struct wlc_modifiers *modifiers) -> uint32_t`
 - [ ] `wlc_keyboard_get_utf32_for_key(uint32_t key, const struct wlc_modifiers *modifiers) -> uint32_t`
 - [ ] `wlc_pointer_get_origin(struct wlc_origin *out_origin) -> void`
 
