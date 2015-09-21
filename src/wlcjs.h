@@ -53,6 +53,7 @@ bool is_initalized();
 
 const char* enum_to_string(wlc_log_type);
 const char* enum_to_string(wlc_backend_type);
+const char* keysym_to_string(uint32_t);
 
 }
 
