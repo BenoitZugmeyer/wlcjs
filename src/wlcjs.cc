@@ -100,6 +100,18 @@ FN(GetBackendType,
   RETURN(S(enum_to_string(wlc_get_backend_type())));
 )
 
+FN(GetOutputs,
+  size_t memb;
+  const wlc_handle* outputs = wlc_get_outputs(&memb);
+  Local<Array> result = Array::New(isolate, memb);
+
+  for (size_t i = 0; i < memb; i += 1) {
+    result->Set(i, Integer::NewFromUnsigned(isolate, outputs[i]));
+  }
+
+  RETURN(result);
+)
+
 void init(Local<Object> exports) {
   NODE_SET_METHOD(exports, "init", Init);
   NODE_SET_METHOD(exports, "run", Run);
@@ -107,6 +119,7 @@ void init(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getKeysymForKey", GetKeysymForKey);
   NODE_SET_METHOD(exports, "getKeysymStringForKey", GetKeysymStringForKey);
   NODE_SET_METHOD(exports, "getBackendType", GetBackendType);
+  NODE_SET_METHOD(exports, "getOutputs", GetOutputs);
 }
 
 NODE_MODULE(addon, init)
