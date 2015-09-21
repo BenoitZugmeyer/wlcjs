@@ -45,6 +45,10 @@ public:
     return this->isolate;
   }
 
+  V8_INLINE Local<T> Unwrap() {
+    return Local<T>::New(this->isolate, *this);
+  }
+
 private:
   Isolate* isolate;
 };

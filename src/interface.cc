@@ -5,7 +5,7 @@ namespace wlcjs {
 #define CALLBACK(NAME, CODE, ...) \
   Isolate* isolate = persistent_interface.GetIsolate();\
   HandleScope scope(isolate);\
-  Local<Object> interface = Local<Object>::New(isolate, persistent_interface);\
+  Local<Object> interface = persistent_interface.Unwrap();\
   Local<Value> v = interface->Get(S(NAME));\
   if (v->IsFunction()) {\
     CODE\

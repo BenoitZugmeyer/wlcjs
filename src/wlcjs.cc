@@ -31,7 +31,7 @@ void log_handler(enum wlc_log_type type, const char *str) {
   if (persistent_log_handler.IsEmpty()) return;
   Isolate* isolate = persistent_log_handler.GetIsolate();
   HandleScope scope(isolate);
-  Local<Function> log_handler = Local<Function>::New(isolate, persistent_log_handler);
+  Local<Function> log_handler = persistent_log_handler.Unwrap();
   Local<Value> arguments[] = {
     S(enum_to_string(type)),
     S(str),
