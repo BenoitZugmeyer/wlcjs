@@ -23,6 +23,12 @@ using v8::Integer;
 using v8::FunctionCallbackInfo;
 using v8::Exception;
 using v8::Array;
+using v8::FunctionTemplate;
+using v8::ObjectTemplate;
+using v8::AccessorSignature;
+using v8::PropertyCallbackInfo;
+using v8::AccessControl;
+using v8::PropertyAttribute;
 
 #define S(C) String::NewFromUtf8(isolate, C)
 

@@ -1,4 +1,5 @@
 #include "wlcjs.h"
+#include "output.h"
 
 namespace wlcjs {
 
@@ -106,7 +107,8 @@ FN(GetOutputs,
   Local<Array> result = Array::New(isolate, memb);
 
   for (size_t i = 0; i < memb; i += 1) {
-    result->Set(i, Integer::NewFromUnsigned(isolate, outputs[i]));
+    Output* output = static_cast<Output*>(wlc_handle_get_user_data(outputs[i]));
+    result->Set(i, output->instance());
   }
 
   RETURN(result);
@@ -120,6 +122,7 @@ void init(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getKeysymStringForKey", GetKeysymStringForKey);
   NODE_SET_METHOD(exports, "getBackendType", GetBackendType);
   NODE_SET_METHOD(exports, "getOutputs", GetOutputs);
+  Output::Init(exports);
 }
 
 NODE_MODULE(addon, init)

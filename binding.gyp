@@ -7,6 +7,7 @@
         "src/interface.cc",
         "src/enum_to_string.cc",
         "src/keysym_to_string.cc",
+        "src/output.cc",
       ],
       "libraries": [
         "-lwlc"

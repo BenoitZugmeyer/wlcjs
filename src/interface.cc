@@ -1,8 +1,9 @@
 #include "wlcjs.h"
+#include "output.h"
 
 namespace wlcjs {
 
-#define CALLBACK(NAME, CODE, ...) \
+#define CALLBACK(NAME, CODE, ...) do {\
   Isolate* isolate = persistent_interface.GetIsolate();\
   HandleScope scope(isolate);\
   Local<Object> interface = persistent_interface.Unwrap();\
@@ -11,13 +12,22 @@ namespace wlcjs {
     CODE\
     Local<Value> arguments[] = { __VA_ARGS__ };\
     v.As<Function>()->Call(Null(isolate), sizeof(arguments) / sizeof(arguments[0]), arguments);\
-  }
+  }\
+} while (0);\
 
 SimplePersistent<Object> persistent_interface;
 
 bool output_created(wlc_handle output) {
-  CALLBACK("outputCreated", {});
+  Output* jsoutput = new Output(output);
+  wlc_handle_set_user_data(output, jsoutput);
+  CALLBACK("outputCreated", {}, jsoutput->instance());
   return true;
+}
+
+void output_destroyed(wlc_handle output) {
+  Output* jsoutput = static_cast<Output*>(wlc_handle_get_user_data(output));
+  CALLBACK("outputDestrayed", {}, jsoutput->instance());
+  delete jsoutput;
 }
 
 void output_resolution(wlc_handle output, const wlc_size* from, const wlc_size* to) {
@@ -40,7 +50,7 @@ wlc_interface global_interface = {
     // bool (*created)(wlc_handle output);
     .created = output_created,
     // void (*destroyed)(wlc_handle output);
-    .destroyed = NULL,
+    .destroyed = output_destroyed,
     // void (*focus)(wlc_handle output, bool focus);
     .focus = NULL,
     // void (*resolution)(wlc_handle output, const struct wlc_size *from, const struct wlc_size *to);
