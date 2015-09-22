@@ -1,5 +1,6 @@
 #include "wlcjs.h"
 #include "output.h"
+#include "view.h"
 
 namespace wlcjs {
 
@@ -50,15 +51,24 @@ void output_resolution(wlc_handle output, const wlc_size* from, const wlc_size* 
 
 bool keyboard_key(wlc_handle view, uint32_t time, const wlc_modifiers* modifiers, uint32_t key, wlc_key_state key_state) {
   Local<Object> modifiers_js;
+  Local<Value> view_or_undefined;
   // TODO return true or false
   CALLBACK(
     "keyboardKey",
     {
+      if (view) {
+        GET_FROM_HANDLE(View, view);
+        view_or_undefined = view_js->GetInstance();
+      }
+      else {
+        view_or_undefined = Undefined(isolate);
+      }
+
       modifiers_js = Object::New(isolate);
       modifiers_js->Set(S("mods"), Number::New(isolate, modifiers->mods));
       modifiers_js->Set(S("leds"), Number::New(isolate, modifiers->leds));
     },
-    Undefined(isolate), // TODO view
+    view_or_undefined,
     Number::New(isolate, time),
     modifiers_js,
     Number::New(isolate, key),
@@ -69,27 +79,32 @@ bool keyboard_key(wlc_handle view, uint32_t time, const wlc_modifiers* modifiers
 
 bool view_created(wlc_handle view) {
   // TODO return true or false
+  View* view_js = new View(view);
+  wlc_handle_set_user_data(view, view_js);
   CALLBACK(
     "viewCreated",
     {},
-    Undefined(isolate), // TODO view
+    view_js->GetInstance(),
   );
   return true;
 }
 
 void view_destroyed(wlc_handle view) {
+  GET_FROM_HANDLE(View, view);
   CALLBACK(
     "viewDestroyed",
     {},
-    Undefined(isolate), // TODO view
+    view_js->GetInstance(),
   );
+  delete view_js;
 }
 
 void view_focus(wlc_handle view, bool focus) {
+  GET_FROM_HANDLE(View, view);
   CALLBACK(
     "viewFocus",
     {},
-    Undefined(isolate), // TODO view
+    view_js->GetInstance(),
     Boolean::New(isolate, focus),
   );
 }
@@ -97,10 +112,11 @@ void view_focus(wlc_handle view, bool focus) {
 void view_move_to_output(wlc_handle view, wlc_handle from_output, wlc_handle to_output) {
   GET_FROM_HANDLE(Output, from_output);
   GET_FROM_HANDLE(Output, to_output);
+  GET_FROM_HANDLE(View, view);
   CALLBACK(
     "viewMoveToOutput",
     {},
-    Undefined(isolate), // TODO view
+    view_js->GetInstance(),
     from_output_js->GetInstance(),
     to_output_js->GetInstance(),
   );

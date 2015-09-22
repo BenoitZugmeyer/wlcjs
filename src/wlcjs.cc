@@ -1,6 +1,7 @@
 #include <xkbcommon/xkbcommon.h>
 #include "wlcjs.h"
 #include "output.h"
+#include "view.h"
 
 namespace wlcjs {
 
@@ -176,6 +177,7 @@ void init(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getOutputs", GetOutputs);
   NODE_SET_METHOD(exports, "exec", Exec);
   Output::Init(exports);
+  View::Init(exports);
 }
 
 NODE_MODULE(addon, init)
