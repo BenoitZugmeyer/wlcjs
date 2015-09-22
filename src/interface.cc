@@ -23,13 +23,13 @@ bool output_created(wlc_handle output) {
   // TODO return true or false
   Output* output_js = new Output(output);
   wlc_handle_set_user_data(output, output_js);
-  CALLBACK("outputCreated", {}, output_js->instance());
+  CALLBACK("outputCreated", {}, output_js->GetInstance());
   return true;
 }
 
 void output_destroyed(wlc_handle output) {
   GET_FROM_HANDLE(Output, output);
-  CALLBACK("outputDestroyed", {}, output_js->instance());
+  CALLBACK("outputDestroyed", {}, output_js->GetInstance());
   delete output_js;
 }
 

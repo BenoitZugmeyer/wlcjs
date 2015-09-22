@@ -136,7 +136,7 @@ METHOD(GetOutputs) {
 
   for (size_t i = 0; i < memb; i += 1) {
     Output* output = static_cast<Output*>(wlc_handle_get_user_data(outputs[i]));
-    result->Set(i, output->instance());
+    result->Set(i, output->GetInstance());
   }
 
   RETURN(args, result);
