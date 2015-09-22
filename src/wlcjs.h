@@ -30,12 +30,26 @@ using v8::PropertyCallbackInfo;
 using v8::AccessControl;
 using v8::PropertyAttribute;
 
+#define ISOLATE(V) Isolate* isolate = (V).GetIsolate();
+
 #define S(C) String::NewFromUtf8(isolate, C)
 
 #define THROW(T, E) {\
     isolate->ThrowException(Exception::T(S(E)));\
     return;\
 }
+
+#define ARG(I, TYPE, NAME) \
+  if (args.Length() <= I) THROW(TypeError, "Argument " #I " is required");\
+  if (!args[I]->Is ## TYPE ()) THROW(TypeError, "Argument " #I " must be a " #TYPE);\
+  Local<TYPE> NAME = args[I].As<TYPE>();
+
+#define RETURN(A, V) \
+  (A).GetReturnValue().Set(V);\
+  return;
+
+#define METHOD(N) void N(const FunctionCallbackInfo<Value>& args)
+
 
 template <class T>
 class SimplePersistent : public Persistent<T> {

@@ -6,13 +6,13 @@ SimplePersistent<Function> Output::constructor;
 
 
 void GetName(Local<String> property, const PropertyCallbackInfo<Value>& info) {
-  Isolate* isolate = info.GetIsolate();
+  ISOLATE(info)
   Output* output = static_cast<Output*>(info.This()->GetAlignedPointerFromInternalField(0));
-  info.GetReturnValue().Set(S(wlc_output_get_name(output->output())));
+  RETURN(info, S(wlc_output_get_name(output->output())));
 }
 
 void Output::Init(Local<Object> exports) {
-  Isolate* isolate = exports->GetIsolate();
+  ISOLATE(**exports)
 
   Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate);
   tpl->SetClassName(S("Output"));

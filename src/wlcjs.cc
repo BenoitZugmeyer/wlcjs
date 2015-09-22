@@ -7,21 +7,6 @@ wlc_event_source* timer = NULL;
 uv_timer_t async_run_timer;
 SimplePersistent<Function> persistent_log_handler;
 
-#define ARG(I, TYPE, NAME) \
-  if (args.Length() <= I) THROW(TypeError, "Argument " #I " is required");\
-  if (!args[I]->Is ## TYPE ()) THROW(TypeError, "Argument " #I " must be a " #TYPE);\
-  Local<TYPE> NAME = args[I].As<TYPE>();
-
-#define RETURN(V) \
-  args.GetReturnValue().Set(V);\
-  return;
-
-#define FN(NAME, CODE) \
-  void NAME (const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = args.GetIsolate();\
-    CODE\
-  }
-
 int run_uv_loop(void *args) {
   uv_run(uv_default_loop(), UV_RUN_NOWAIT);
   wlc_event_source_timer_update(timer, 1);
@@ -30,7 +15,7 @@ int run_uv_loop(void *args) {
 
 void log_handler(enum wlc_log_type type, const char *str) {
   if (persistent_log_handler.IsEmpty()) return;
-  Isolate* isolate = persistent_log_handler.GetIsolate();
+  ISOLATE(persistent_log_handler)
   HandleScope scope(isolate);
   Local<Function> log_handler = persistent_log_handler.Unwrap();
   Local<Value> arguments[] = {
@@ -40,7 +25,8 @@ void log_handler(enum wlc_log_type type, const char *str) {
   log_handler->Call(Null(isolate), 2, arguments);
 }
 
-FN(Init,
+METHOD(Init) {
+  ISOLATE(args)
   ARG(0, Object, interface);
 
   if (is_initalized()) THROW(Error, "Can't call init twice");
@@ -60,7 +46,7 @@ FN(Init,
   wlc_log_set_handler(log_handler);
 
   wlc_init(get_wlc_interface(interface), argc, argv);
-)
+}
 
 void run_cb(uv_timer_t* handle) {
   timer = wlc_event_loop_add_timer(run_uv_loop, NULL);
@@ -68,40 +54,46 @@ void run_cb(uv_timer_t* handle) {
   wlc_run();
 }
 
-FN(Run,
+METHOD(Run) {
+  ISOLATE(args)
   if (!is_initalized()) THROW(Error, "Call init first");
 
   uv_timer_init(uv_default_loop(), &async_run_timer);
   uv_timer_start(&async_run_timer, run_cb, 0, 0);
-)
+}
 
-FN(SetLogHandler,
+METHOD(SetLogHandler) {
+  ISOLATE(args)
   ARG(0, Function, handler);
 
   persistent_log_handler.Reset(handler);
-)
+}
 
-FN(GetKeysymForKey,
+METHOD(GetKeysymForKey) {
+  ISOLATE(args)
   ARG(0, Number, key);
 
   uint32_t keysym = wlc_keyboard_get_keysym_for_key(key->Uint32Value(), NULL);
 
-  RETURN(Integer::NewFromUnsigned(isolate, keysym));
-)
+  RETURN(args, Integer::NewFromUnsigned(isolate, keysym));
+}
 
-FN(GetKeysymStringForKey,
+METHOD(GetKeysymStringForKey) {
+  ISOLATE(args)
   ARG(0, Number, key);
 
   uint32_t keysym = wlc_keyboard_get_keysym_for_key(key->Uint32Value(), NULL);
 
-  RETURN(S(keysym_to_string(keysym)));
-)
+  RETURN(args, S(keysym_to_string(keysym)));
+}
 
-FN(GetBackendType,
-  RETURN(S(enum_to_string(wlc_get_backend_type())));
-)
+METHOD(GetBackendType) {
+  ISOLATE(args)
+  RETURN(args, S(enum_to_string(wlc_get_backend_type())));
+}
 
-FN(GetOutputs,
+METHOD(GetOutputs) {
+  ISOLATE(args)
   size_t memb;
   const wlc_handle* outputs = wlc_get_outputs(&memb);
   Local<Array> result = Array::New(isolate, memb);
@@ -111,8 +103,8 @@ FN(GetOutputs,
     result->Set(i, output->instance());
   }
 
-  RETURN(result);
-)
+  RETURN(args, result);
+}
 
 void init(Local<Object> exports) {
   NODE_SET_METHOD(exports, "init", Init);
