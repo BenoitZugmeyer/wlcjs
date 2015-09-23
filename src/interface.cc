@@ -26,7 +26,7 @@ bool output_created(wlc_handle output) {
 
 void output_destroyed(wlc_handle output) {
   Output* jsoutput = static_cast<Output*>(wlc_handle_get_user_data(output));
-  CALLBACK("outputDestrayed", {}, jsoutput->instance());
+  CALLBACK("outputDestroyed", {}, jsoutput->instance());
   delete jsoutput;
 }
 
