@@ -31,14 +31,15 @@ METHOD(Init) {
 
   if (is_initalized()) THROW(Error, "Can't call init twice");
 
-  Local<Array> jsArgv = isolate->GetCurrentContext()->Global()
-    ->Get(S("process")).As<Object>()
-    ->Get(S("argv")).As<Array>();
+  Local<Object> global = isolate->GetCurrentContext()->Global();
+  GET_AS(Object, global->Get(S("process")), process, "process");
+  GET_AS(Array, process->Get(S("argv")), jsArgv, "process.argv");
 
   int argc = jsArgv->Length();
   char *argv[argc];
   for (int i = 0; i < argc; i += 1) {
-    String::Utf8Value v(jsArgv->Get(i)->ToString());
+    GET_AS(String, jsArgv->Get(i), str, "process.argv[%d]", i);
+    String::Utf8Value v(str);
     argv[i] = new char[v.length() + 1];
     memcpy(argv[i], *v, v.length() + 1);
   }

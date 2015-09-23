@@ -39,10 +39,17 @@ using v8::PropertyAttribute;
     return;\
 }
 
+#define GET_AS(TYPE, VALUE, NAME, ...) \
+  if (!VALUE->Is ## TYPE ()) {\
+    char buffer[200];\
+    snprintf(buffer, 199, __VA_ARGS__);\
+    strncat(buffer, " must be a " #TYPE, 199);\
+    THROW(TypeError, buffer);\
+  }\
+  Local<TYPE> NAME = VALUE.As<TYPE>();
+
 #define ARG(I, TYPE, NAME) \
-  if (args.Length() <= I) THROW(TypeError, "Argument " #I " is required");\
-  if (!args[I]->Is ## TYPE ()) THROW(TypeError, "Argument " #I " must be a " #TYPE);\
-  Local<TYPE> NAME = args[I].As<TYPE>();
+  GET_AS(TYPE, args[I], NAME, "Argument %d", (int) I + 1);
 
 #define RETURN(A, V) \
   (A).GetReturnValue().Set(V);\
