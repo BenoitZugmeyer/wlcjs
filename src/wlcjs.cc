@@ -124,13 +124,13 @@ METHOD(Exec) {
   char* bin = v8string_to_cstring(jsbin);
 
   size_t length = args.Length();
-  char* argv[length];
+  char* argv[length + 1];
 
-  for (size_t i = 1; i < length; i += 1) {
+  for (size_t i = 0; i < length; i += 1) {
     ARG(i, String, str);
-    argv[i - 1] = v8string_to_cstring(str);
+    argv[i] = v8string_to_cstring(str);
   }
-  argv[length - 1] = NULL;
+  argv[length] = NULL;
 
   wlc_exec(bin, argv);
 
