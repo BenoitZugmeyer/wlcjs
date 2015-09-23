@@ -25,6 +25,13 @@ void log_handler(enum wlc_log_type type, const char *str) {
   log_handler->Call(Null(isolate), 2, arguments);
 }
 
+char* v8string_to_cstring(Local<String> str) {
+  String::Utf8Value v(str);
+  char* result = new char[v.length() + 1];
+  memcpy(result, *v, v.length() + 1);
+  return result;
+}
+
 METHOD(Init) {
   ISOLATE(args)
   ARG(0, Object, interface);
@@ -39,9 +46,7 @@ METHOD(Init) {
   char *argv[argc];
   for (int i = 0; i < argc; i += 1) {
     GET_AS(String, jsArgv->Get(i), str, "process.argv[%d]", i);
-    String::Utf8Value v(str);
-    argv[i] = new char[v.length() + 1];
-    memcpy(argv[i], *v, v.length() + 1);
+    argv[i] = v8string_to_cstring(str);
   }
 
   wlc_log_set_handler(log_handler);
@@ -107,6 +112,29 @@ METHOD(GetOutputs) {
   RETURN(args, result);
 }
 
+METHOD(Exec) {
+  ISOLATE(args);
+  ARG(0, String, jsbin);
+
+  char* bin = v8string_to_cstring(jsbin);
+
+  size_t length = args.Length();
+  char* argv[length];
+
+  for (size_t i = 1; i < length; i += 1) {
+    ARG(i, String, str);
+    argv[i - 1] = v8string_to_cstring(str);
+  }
+  argv[length - 1] = NULL;
+
+  wlc_exec(bin, argv);
+
+  for (size_t i = 0; i < length; i += 1) {
+    delete argv[i];
+  }
+  delete bin;
+}
+
 void init(Local<Object> exports) {
   NODE_SET_METHOD(exports, "init", Init);
   NODE_SET_METHOD(exports, "run", Run);
@@ -115,6 +143,7 @@ void init(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getKeysymStringForKey", GetKeysymStringForKey);
   NODE_SET_METHOD(exports, "getBackendType", GetBackendType);
   NODE_SET_METHOD(exports, "getOutputs", GetOutputs);
+  NODE_SET_METHOD(exports, "exec", Exec);
   Output::Init(exports);
 }
 
