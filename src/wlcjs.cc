@@ -80,6 +80,7 @@ METHOD(GetKeysymForKey) {
   ISOLATE(args)
   ARG(0, Number, key);
 
+  // TODO modifiers support
   uint32_t keysym = wlc_keyboard_get_keysym_for_key(key->Uint32Value(), NULL);
 
   RETURN(args, Integer::NewFromUnsigned(isolate, keysym));
@@ -89,6 +90,7 @@ METHOD(GetKeysymNameForKey) {
   ISOLATE(args)
   ARG(0, Number, key);
 
+  // TODO modifiers support
   uint32_t keysym = wlc_keyboard_get_keysym_for_key(key->Uint32Value(), NULL);
   char buffer[100];
   if (xkb_keysym_get_name(keysym, buffer, 100) < 0) THROW(Error, "Invalid keysym");

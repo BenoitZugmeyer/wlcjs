@@ -29,6 +29,7 @@ using v8::AccessorSignature;
 using v8::PropertyCallbackInfo;
 using v8::AccessControl;
 using v8::PropertyAttribute;
+using v8::Undefined;
 
 #define ISOLATE(V) Isolate* isolate = (V).GetIsolate();
 
@@ -85,6 +86,7 @@ bool is_initalized();
 
 const char* enum_to_string(wlc_log_type);
 const char* enum_to_string(wlc_backend_type);
+const char* enum_to_string(wlc_key_state);
 
 }
 

@@ -9,7 +9,7 @@ namespace wlcjs {
   Local<Object> interface = persistent_interface.Unwrap();\
   Local<Value> v = interface->Get(S(NAME));\
   if (v->IsFunction()) {\
-    CODE\
+    CODE;\
     Local<Value> arguments[] = { __VA_ARGS__ };\
     v.As<Function>()->Call(Null(isolate), sizeof(arguments) / sizeof(arguments[0]), arguments);\
   }\
@@ -34,12 +34,20 @@ void output_resolution(wlc_handle output, const wlc_size* from, const wlc_size* 
   CALLBACK("resolutionChanged", {});
 }
 
-bool keyboard_key(wlc_handle view, uint32_t time, const wlc_modifiers*, uint32_t key, wlc_key_state key_state) {
+bool keyboard_key(wlc_handle view, uint32_t time, const wlc_modifiers* modifiers, uint32_t key, wlc_key_state key_state) {
+  Local<Object> jsmodifiers;
   CALLBACK(
-    (key_state == WLC_KEY_STATE_PRESSED ? "keyPressed" : "keyReleased"),
-    {},
-    Number::New(isolate, key),
+    "keyboardKey",
+    {
+      jsmodifiers = Object::New(isolate);
+      jsmodifiers->Set(S("mods"), Number::New(isolate, modifiers->mods));
+      jsmodifiers->Set(S("leds"), Number::New(isolate, modifiers->leds));
+    },
+    Undefined(isolate), // TODO view
     Number::New(isolate, time),
+    jsmodifiers,
+    Number::New(isolate, key),
+    S(enum_to_string(key_state)),
   );
   return true;
 }

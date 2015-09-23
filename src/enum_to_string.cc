@@ -25,4 +25,9 @@ ENUM_TEXT(backend_type,
   CASE(WLC_BACKEND_X11, "x11")
 );
 
+ENUM_TEXT(key_state,
+  CASE(WLC_KEY_STATE_RELEASED, "released")
+  CASE(WLC_KEY_STATE_PRESSED, "pressed")
+);
+
 }
