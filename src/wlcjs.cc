@@ -1,3 +1,4 @@
+#include <xkbcommon/xkbcommon.h>
 #include "wlcjs.h"
 #include "output.h"
 
@@ -84,13 +85,15 @@ METHOD(GetKeysymForKey) {
   RETURN(args, Integer::NewFromUnsigned(isolate, keysym));
 }
 
-METHOD(GetKeysymStringForKey) {
+METHOD(GetKeysymNameForKey) {
   ISOLATE(args)
   ARG(0, Number, key);
 
   uint32_t keysym = wlc_keyboard_get_keysym_for_key(key->Uint32Value(), NULL);
+  char buffer[100];
+  if (xkb_keysym_get_name(keysym, buffer, 100) < 0) THROW(Error, "Invalid keysym");
 
-  RETURN(args, S(keysym_to_string(keysym)));
+  RETURN(args, S(buffer));
 }
 
 METHOD(GetBackendType) {
@@ -140,7 +143,7 @@ void init(Local<Object> exports) {
   NODE_SET_METHOD(exports, "run", Run);
   NODE_SET_METHOD(exports, "setLogHandler", SetLogHandler);
   NODE_SET_METHOD(exports, "getKeysymForKey", GetKeysymForKey);
-  NODE_SET_METHOD(exports, "getKeysymStringForKey", GetKeysymStringForKey);
+  NODE_SET_METHOD(exports, "getKeysymNameForKey", GetKeysymNameForKey);
   NODE_SET_METHOD(exports, "getBackendType", GetBackendType);
   NODE_SET_METHOD(exports, "getOutputs", GetOutputs);
   NODE_SET_METHOD(exports, "exec", Exec);
