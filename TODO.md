@@ -55,7 +55,7 @@ View
 - [ ] `wlc_view_set_state(wlc_handle view, enum wlc_view_state_bit state, bool toggle) -> void`
 - [ ] `wlc_view_get_parent(wlc_handle view) -> wlc_handle`
 - [ ] `wlc_view_set_parent(wlc_handle view, wlc_handle parent) -> void`
-- [ ] `wlc_view_get_title(wlc_handle view) -> const char*`
+- [x] `wlc_view_get_title(wlc_handle view) -> const char*`
 - [ ] `wlc_view_set_title(wlc_handle view, const char *title) -> bool`
 - [ ] `wlc_view_get_class(wlc_handle view) -> const char*`
 - [ ] `wlc_view_set_class(wlc_handle view, const char *class_) -> bool`
