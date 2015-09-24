@@ -30,6 +30,7 @@ using v8::PropertyCallbackInfo;
 using v8::AccessControl;
 using v8::PropertyAttribute;
 using v8::Undefined;
+using v8::Boolean;
 
 #define ISOLATE(V) Isolate* isolate = (V).GetIsolate();
 

@@ -15,41 +15,95 @@ namespace wlcjs {
   }\
 } while (0);\
 
+#define GET_FROM_HANDLE(TYPE, V) TYPE* V ## _js = static_cast<TYPE*>(wlc_handle_get_user_data(V));
+
 SimplePersistent<Object> persistent_interface;
 
 bool output_created(wlc_handle output) {
-  Output* jsoutput = new Output(output);
-  wlc_handle_set_user_data(output, jsoutput);
-  CALLBACK("outputCreated", {}, jsoutput->instance());
+  // TODO return true or false
+  Output* output_js = new Output(output);
+  wlc_handle_set_user_data(output, output_js);
+  CALLBACK("outputCreated", {}, output_js->instance());
   return true;
 }
 
 void output_destroyed(wlc_handle output) {
-  Output* jsoutput = static_cast<Output*>(wlc_handle_get_user_data(output));
-  CALLBACK("outputDestroyed", {}, jsoutput->instance());
-  delete jsoutput;
+  GET_FROM_HANDLE(Output, output);
+  CALLBACK("outputDestroyed", {}, output_js->instance());
+  delete output_js;
+}
+
+void output_focus(wlc_handle output, bool focus) {
+  GET_FROM_HANDLE(Output, output);
+  CALLBACK(
+    "outputFocus",
+    {},
+    output_js->GetInstance(),
+    Boolean::New(isolate, focus),
+  );
 }
 
 void output_resolution(wlc_handle output, const wlc_size* from, const wlc_size* to) {
-  CALLBACK("resolutionChanged", {});
+  // TODO handle from/to
+  CALLBACK("outputResolution", {});
 }
 
 bool keyboard_key(wlc_handle view, uint32_t time, const wlc_modifiers* modifiers, uint32_t key, wlc_key_state key_state) {
-  Local<Object> jsmodifiers;
+  Local<Object> modifiers_js;
+  // TODO return true or false
   CALLBACK(
     "keyboardKey",
     {
-      jsmodifiers = Object::New(isolate);
-      jsmodifiers->Set(S("mods"), Number::New(isolate, modifiers->mods));
-      jsmodifiers->Set(S("leds"), Number::New(isolate, modifiers->leds));
+      modifiers_js = Object::New(isolate);
+      modifiers_js->Set(S("mods"), Number::New(isolate, modifiers->mods));
+      modifiers_js->Set(S("leds"), Number::New(isolate, modifiers->leds));
     },
     Undefined(isolate), // TODO view
     Number::New(isolate, time),
-    jsmodifiers,
+    modifiers_js,
     Number::New(isolate, key),
     S(enum_to_string(key_state)),
   );
   return true;
+}
+
+bool view_created(wlc_handle view) {
+  // TODO return true or false
+  CALLBACK(
+    "viewCreated",
+    {},
+    Undefined(isolate), // TODO view
+  );
+  return true;
+}
+
+void view_destroyed(wlc_handle view) {
+  CALLBACK(
+    "viewDestroyed",
+    {},
+    Undefined(isolate), // TODO view
+  );
+}
+
+void view_focus(wlc_handle view, bool focus) {
+  CALLBACK(
+    "viewFocus",
+    {},
+    Undefined(isolate), // TODO view
+    Boolean::New(isolate, focus),
+  );
+}
+
+void view_move_to_output(wlc_handle view, wlc_handle from_output, wlc_handle to_output) {
+  GET_FROM_HANDLE(Output, from_output);
+  GET_FROM_HANDLE(Output, to_output);
+  CALLBACK(
+    "viewMoveToOutput",
+    {},
+    Undefined(isolate), // TODO view
+    from_output_js->GetInstance(),
+    to_output_js->GetInstance(),
+  );
 }
 
 wlc_interface global_interface = {
@@ -60,20 +114,20 @@ wlc_interface global_interface = {
     // void (*destroyed)(wlc_handle output);
     .destroyed = output_destroyed,
     // void (*focus)(wlc_handle output, bool focus);
-    .focus = NULL,
+    .focus = output_focus,
     // void (*resolution)(wlc_handle output, const struct wlc_size *from, const struct wlc_size *to);
     .resolution = output_resolution,
   },
 
   .view = {
     // bool (*created)(wlc_handle view);
-    .created = NULL,
+    .created = view_created,
     // void (*destroyed)(wlc_handle view);
-    .destroyed = NULL,
+    .destroyed = view_destroyed,
     // void (*focus)(wlc_handle view, bool focus);
-    .focus = NULL,
+    .focus = view_focus,
     // void (*move_to_output)(wlc_handle view, wlc_handle from_output, wlc_handle to_output);
-    .move_to_output = NULL,
+    .move_to_output = view_move_to_output,
 
     .request = {
       // void (*geometry)(wlc_handle view, const struct wlc_geometry*);
