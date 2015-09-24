@@ -4,9 +4,19 @@
 
 namespace wlcjs {
 
+enum state_t {
+  STATE_UNINITIALIZED = 0x1,
+  STATE_INITIALIZED = 0x2,
+  STATE_RUNNING = 0x4,
+};
+
+#define ASSERT_STATE(S) if (!(state & STATE_ ## S)) THROW(Error, "State should be " #S);
+#define ASSERT_NOT_STATE(S) if (state & STATE_ ## S) THROW(Error, "State should not be " #S);
+
 wlc_event_source* timer = NULL;
 uv_timer_t async_run_timer;
 SimplePersistent<Function> persistent_log_handler;
+int state = STATE_UNINITIALIZED;
 
 int run_uv_loop(void *args) {
   uv_run(uv_default_loop(), UV_RUN_NOWAIT);
@@ -35,9 +45,8 @@ char* v8string_to_cstring(Local<String> str) {
 
 METHOD(Init) {
   ISOLATE(args)
+  ASSERT_STATE(UNINITIALIZED);
   ARG(0, Object, interface);
-
-  if (is_initalized()) THROW(Error, "Can't call init twice");
 
   Local<Object> global = isolate->GetCurrentContext()->Global();
   GET_AS(Object, global->Get(S("process")), process, "process");
@@ -52,10 +61,17 @@ METHOD(Init) {
 
   wlc_log_set_handler(log_handler);
 
-  wlc_init(get_wlc_interface(interface), argc, argv);
+  if (!wlc_init(get_wlc_interface(interface), argc, argv)) {
+    THROW(Error, "Failed to initialize wlc");
+  }
+  state = STATE_INITIALIZED;
 }
 
 void run_cb(uv_timer_t* handle) {
+  if (state & STATE_RUNNING) return;
+
+  state = STATE_RUNNING | STATE_INITIALIZED;
+
   timer = wlc_event_loop_add_timer(run_uv_loop, NULL);
   wlc_event_source_timer_update(timer, 1);
   wlc_run();
@@ -63,10 +79,15 @@ void run_cb(uv_timer_t* handle) {
 
 METHOD(Run) {
   ISOLATE(args)
-  if (!is_initalized()) THROW(Error, "Call init first");
+  ASSERT_STATE(INITIALIZED);
+  ASSERT_NOT_STATE(RUNNING);
 
   uv_timer_init(uv_default_loop(), &async_run_timer);
   uv_timer_start(&async_run_timer, run_cb, 0, 0);
+}
+
+METHOD(Terminate) {
+  if (state & STATE_RUNNING) wlc_terminate();
 }
 
 METHOD(SetLogHandler) {
@@ -78,6 +99,7 @@ METHOD(SetLogHandler) {
 
 METHOD(GetKeysymForKey) {
   ISOLATE(args)
+  ASSERT_STATE(INITIALIZED);
   ARG(0, Number, key);
 
   // TODO modifiers support
@@ -88,6 +110,7 @@ METHOD(GetKeysymForKey) {
 
 METHOD(GetKeysymNameForKey) {
   ISOLATE(args)
+  ASSERT_STATE(INITIALIZED);
   ARG(0, Number, key);
 
   // TODO modifiers support
@@ -100,11 +123,13 @@ METHOD(GetKeysymNameForKey) {
 
 METHOD(GetBackendType) {
   ISOLATE(args)
+  ASSERT_STATE(INITIALIZED);
   RETURN(args, S(enum_to_string(wlc_get_backend_type())));
 }
 
 METHOD(GetOutputs) {
   ISOLATE(args)
+  ASSERT_STATE(INITIALIZED);
   size_t memb;
   const wlc_handle* outputs = wlc_get_outputs(&memb);
   Local<Array> result = Array::New(isolate, memb);
@@ -143,6 +168,7 @@ METHOD(Exec) {
 void init(Local<Object> exports) {
   NODE_SET_METHOD(exports, "init", Init);
   NODE_SET_METHOD(exports, "run", Run);
+  NODE_SET_METHOD(exports, "terminate", Terminate);
   NODE_SET_METHOD(exports, "setLogHandler", SetLogHandler);
   NODE_SET_METHOD(exports, "getKeysymForKey", GetKeysymForKey);
   NODE_SET_METHOD(exports, "getKeysymNameForKey", GetKeysymNameForKey);

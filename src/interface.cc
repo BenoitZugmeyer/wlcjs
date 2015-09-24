@@ -121,14 +121,8 @@ wlc_interface global_interface = {
 };
 
 wlc_interface* get_wlc_interface(Local<Object> value) {
-  if (!is_initalized()) {
-    persistent_interface.Reset(value);
-  }
+  persistent_interface.Reset(value);
   return &global_interface;
-}
-
-bool is_initalized() {
-  return !persistent_interface.IsEmpty();
 }
 
 }
