@@ -52,13 +52,13 @@ using v8::Signature;
   Local<TYPE> NAME = VALUE.As<TYPE>();
 
 #define ARG(I, TYPE, NAME) \
-  GET_AS(TYPE, args[I], NAME, "Argument %d", (int) I + 1);
+  GET_AS(TYPE, info[I], NAME, "Argument %d", (int) I + 1);
 
 #define RETURN(A, V) \
   (A).GetReturnValue().Set(V);\
   return;
 
-#define METHOD(N) void N(const FunctionCallbackInfo<Value>& args)
+#define METHOD(N) void N(const FunctionCallbackInfo<Value>& info)
 
 
 template <class T>

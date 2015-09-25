@@ -45,7 +45,7 @@ char* v8string_to_cstring(Local<String> str) {
 }
 
 METHOD(Init) {
-  ISOLATE(args)
+  ISOLATE(info)
   ASSERT_STATE(UNINITIALIZED);
   ARG(0, Object, interface);
 
@@ -79,7 +79,7 @@ void run_cb(uv_timer_t* handle) {
 }
 
 METHOD(Run) {
-  ISOLATE(args)
+  ISOLATE(info)
   ASSERT_STATE(INITIALIZED);
   ASSERT_NOT_STATE(RUNNING);
 
@@ -92,25 +92,25 @@ METHOD(Terminate) {
 }
 
 METHOD(SetLogHandler) {
-  ISOLATE(args)
+  ISOLATE(info)
   ARG(0, Function, handler);
 
   persistent_log_handler.Reset(handler);
 }
 
 METHOD(GetKeysymForKey) {
-  ISOLATE(args)
+  ISOLATE(info)
   ASSERT_STATE(INITIALIZED);
   ARG(0, Number, key);
 
   // TODO modifiers support
   uint32_t keysym = wlc_keyboard_get_keysym_for_key(key->Uint32Value(), NULL);
 
-  RETURN(args, Integer::NewFromUnsigned(isolate, keysym));
+  RETURN(info, Integer::NewFromUnsigned(isolate, keysym));
 }
 
 METHOD(GetKeysymNameForKey) {
-  ISOLATE(args)
+  ISOLATE(info)
   ASSERT_STATE(INITIALIZED);
   ARG(0, Number, key);
 
@@ -119,17 +119,17 @@ METHOD(GetKeysymNameForKey) {
   char buffer[100];
   if (xkb_keysym_get_name(keysym, buffer, 100) < 0) THROW(Error, "Invalid keysym");
 
-  RETURN(args, S(buffer));
+  RETURN(info, S(buffer));
 }
 
 METHOD(GetBackendType) {
-  ISOLATE(args)
+  ISOLATE(info)
   ASSERT_STATE(INITIALIZED);
-  RETURN(args, S(enum_to_string(wlc_get_backend_type())));
+  RETURN(info, S(enum_to_string(wlc_get_backend_type())));
 }
 
 METHOD(GetOutputs) {
-  ISOLATE(args)
+  ISOLATE(info)
   ASSERT_STATE(INITIALIZED);
   size_t memb;
   const wlc_handle* outputs = wlc_get_outputs(&memb);
@@ -140,16 +140,16 @@ METHOD(GetOutputs) {
     result->Set(i, output->GetInstance());
   }
 
-  RETURN(args, result);
+  RETURN(info, result);
 }
 
 METHOD(Exec) {
-  ISOLATE(args);
+  ISOLATE(info);
   ARG(0, String, jsbin);
 
   char* bin = v8string_to_cstring(jsbin);
 
-  size_t length = args.Length();
+  size_t length = info.Length();
   char* argv[length + 1];
 
   for (size_t i = 0; i < length; i += 1) {
