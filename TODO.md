@@ -37,8 +37,8 @@ Output
 View
 ----
 
-- [ ] `wlc_view_focus(wlc_handle view) -> void`
-- [ ] `wlc_view_close(wlc_handle view) -> void`
+- [x] `wlc_view_focus(wlc_handle view) -> void`
+- [x] `wlc_view_close(wlc_handle view) -> void`
 - [ ] `wlc_view_get_output(wlc_handle view) -> wlc_handle`
 - [ ] `wlc_view_set_output(wlc_handle view, wlc_handle output) -> void`
 - [ ] `wlc_view_send_to_back(wlc_handle view) -> void`

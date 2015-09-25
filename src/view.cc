@@ -8,6 +8,18 @@ void ViewGetTitle(Local<String> property, const PropertyCallbackInfo<Value>& inf
   RETURN(info, S(wlc_view_get_title(handle)));
 }
 
+void ViewFocus(const FunctionCallbackInfo<Value>& info) {
+  ISOLATE(info);
+  GET_HANDLE(View);
+  wlc_view_focus(handle);
+}
+
+void ViewClose(const FunctionCallbackInfo<Value>& info) {
+  ISOLATE(info);
+  GET_HANDLE(View);
+  wlc_view_close(handle);
+}
+
 void View::Init(Local<Object> exports) {
   assert(constructor_.IsEmpty());
   ISOLATE(**exports)
@@ -19,6 +31,8 @@ void View::Init(Local<Object> exports) {
   Local<ObjectTemplate> prototype = tpl->PrototypeTemplate();
 
   DEFINE_GETTER(prototype, "title", ViewGetTitle);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "close", ViewClose);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "focus", ViewFocus);
 
   constructor_.Reset(tpl->GetFunction());
   exports->Set(S("View"), tpl->GetFunction());

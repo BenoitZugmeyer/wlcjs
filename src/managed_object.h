@@ -13,6 +13,8 @@ class ManagedObject {
   explicit ManagedObject(wlc_handle);
 
   ~ManagedObject() {
+    HandleScope scope(constructor_.GetIsolate());
+    instance_.Unwrap()->SetAlignedPointerInInternalField(0, NULL);
     instance_.Empty();
   }
 
@@ -56,7 +58,9 @@ ManagedObject<T>::ManagedObject(wlc_handle handle) : handle_(handle) {
 #define DEFINE_GETTER(PROTO, NAME, GETTER) DEFINE_ACCESSOR(PROTO, NAME, GETTER, 0)
 
 #define GET_HANDLE(TYPE)\
-  wlc_handle handle = static_cast<TYPE*>(info.This()->GetAlignedPointerFromInternalField(0))->GetWLCHandle();
+  TYPE* managed_object = static_cast<TYPE*>(info.This()->GetAlignedPointerFromInternalField(0));\
+  if (!managed_object) THROW(Error, "Underlying " #TYPE " doesn't exist anymore");\
+  wlc_handle handle = managed_object->GetWLCHandle();
 
 }
 
