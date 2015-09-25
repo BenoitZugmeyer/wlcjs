@@ -20,22 +20,10 @@ void ViewClose(const FunctionCallbackInfo<Value>& info) {
   wlc_view_close(handle);
 }
 
-void View::Init(Local<Object> exports) {
-  assert(constructor_.IsEmpty());
-  ISOLATE(**exports)
-
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate);
-  tpl->SetClassName(S("View"));
-  tpl->InstanceTemplate()->SetInternalFieldCount(1);
-
-  Local<ObjectTemplate> prototype = tpl->PrototypeTemplate();
-
-  DEFINE_GETTER(prototype, "title", ViewGetTitle);
-  NODE_SET_PROTOTYPE_METHOD(tpl, "close", ViewClose);
-  NODE_SET_PROTOTYPE_METHOD(tpl, "focus", ViewFocus);
-
-  constructor_.Reset(tpl->GetFunction());
-  exports->Set(S("View"), tpl->GetFunction());
+void View::InitPrototype(Isolate* isolate, Local<FunctionTemplate> tpl) {
+  DEFINE_GETTER(tpl, "title", ViewGetTitle);
+  DEFINE_METHOD(tpl, "close", ViewClose);
+  DEFINE_METHOD(tpl, "focus", ViewFocus);
 }
 
 }

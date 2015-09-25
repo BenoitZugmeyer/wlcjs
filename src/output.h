@@ -7,7 +7,8 @@ namespace wlcjs {
 
 class Output : public ManagedObject<Output> {
  public:
-  static void Init(Local<Object> exports);
+  static constexpr const char* name = "Output";
+  static void InitPrototype(Isolate* isolate, Local<FunctionTemplate> tpl);
   explicit Output(wlc_handle handle) : ManagedObject(handle) {};
 };
 

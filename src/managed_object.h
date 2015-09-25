@@ -10,6 +10,8 @@ namespace wlcjs {
 template<class T>
 class ManagedObject {
  public:
+  static void Init(Local<Object> exports);
+
   explicit ManagedObject(wlc_handle);
 
   ~ManagedObject() {
@@ -37,6 +39,21 @@ template <typename T>
 SimplePersistent<Function> ManagedObject<T>::constructor_;
 
 template <typename T>
+void ManagedObject<T>::Init(Local<Object> exports) {
+  assert(constructor_.IsEmpty());
+  ISOLATE(**exports)
+
+  Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate);
+  tpl->SetClassName(S(T::name));
+  tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+  T::InitPrototype(isolate, tpl);
+
+  constructor_.Reset(tpl->GetFunction());
+  exports->Set(S(T::name), tpl->GetFunction());
+}
+
+template <typename T>
 ManagedObject<T>::ManagedObject(wlc_handle handle) : handle_(handle) {
   assert(!constructor_.IsEmpty());
   HandleScope scope(constructor_.GetIsolate());
@@ -45,15 +62,25 @@ ManagedObject<T>::ManagedObject(wlc_handle handle) : handle_(handle) {
   instance_.Reset(result);
 }
 
-#define DEFINE_ACCESSOR(PROTO, NAME, GETTER, SETTER) \
-  PROTO->SetAccessor(\
+#define DEFINE_METHOD(TPL, NAME, FN) do {\
+  Local<Function> fn = FunctionTemplate::New(\
+      isolate,\
+      FN,\
+      Local<Value>(),\
+      Signature::New(isolate, TPL))->GetFunction();\
+  TPL->PrototypeTemplate()->Set(S(NAME), fn);\
+  fn->SetName(S(NAME));\
+} while(0);
+
+#define DEFINE_ACCESSOR(TPL, NAME, GETTER, SETTER) \
+  TPL->PrototypeTemplate()->SetAccessor(\
       S(NAME),\
       GETTER,\
       SETTER,\
       Local<Value>(),\
       AccessControl::DEFAULT,\
       PropertyAttribute::ReadOnly,\
-      AccessorSignature::New(isolate, tpl));
+      AccessorSignature::New(isolate, TPL));
 
 #define DEFINE_GETTER(PROTO, NAME, GETTER) DEFINE_ACCESSOR(PROTO, NAME, GETTER, 0)
 

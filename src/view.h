@@ -7,7 +7,8 @@ namespace wlcjs {
 
 class View : public ManagedObject<View> {
  public:
-  static void Init(Local<Object> exports);
+  static constexpr const char* name = "View";
+  static void InitPrototype(Isolate* isolate, Local<FunctionTemplate> tpl);
   explicit View(wlc_handle handle) : ManagedObject(handle) {};
 };
 

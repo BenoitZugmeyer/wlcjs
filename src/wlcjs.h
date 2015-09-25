@@ -31,6 +31,7 @@ using v8::AccessControl;
 using v8::PropertyAttribute;
 using v8::Undefined;
 using v8::Boolean;
+using v8::Signature;
 
 #define ISOLATE(V) Isolate* isolate = (V).GetIsolate();
 
