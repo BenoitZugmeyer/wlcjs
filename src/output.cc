@@ -3,9 +3,8 @@
 namespace wlcjs {
 
 void OutputGetName(Local<String> property, const PropertyCallbackInfo<Value>& info) {
-  ISOLATE(info);
-  GET_HANDLE(Output);
-  RETURN(info, S(wlc_output_get_name(handle)));
+  UNWRAP_OR(output, Output::FromLocalObject(info.This()), return);
+  RETURN(info, NewString(wlc_output_get_name(output->GetWLCHandle())));
 }
 
 void Output::InitPrototype(Isolate* isolate, Local<FunctionTemplate> tpl) {

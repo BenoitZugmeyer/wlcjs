@@ -2,6 +2,7 @@
 #define _WLCJS_MANAGED_OBJECT_H
 
 #include "wlcjs.h"
+#include "types.h"
 
 namespace wlcjs {
 
@@ -10,9 +11,11 @@ namespace wlcjs {
 template<class T>
 class ManagedObject {
  public:
-  static void Init(Local<Object> exports);
+  static void Init(Isolate* isolate, Local<Object> exports);
+  static Maybe<T*> Create(Isolate* isolate, wlc_handle);
+  static Maybe<T*> FromLocalObject(Local<Object> value);
+  static T* FromWLCHandle(wlc_handle);
 
-  explicit ManagedObject(wlc_handle);
 
   ~ManagedObject() {
     HandleScope scope(constructor_.GetIsolate());
@@ -28,6 +31,7 @@ class ManagedObject {
   inline wlc_handle GetWLCHandle() { return handle_; }
 
  protected:
+  explicit ManagedObject(wlc_handle handle) : handle_(handle) {};
   static SimplePersistent<Function> constructor_;
 
  private:
@@ -39,55 +43,55 @@ template <typename T>
 SimplePersistent<Function> ManagedObject<T>::constructor_;
 
 template <typename T>
-void ManagedObject<T>::Init(Local<Object> exports) {
+void ManagedObject<T>::Init(Isolate* isolate, Local<Object> exports) {
   assert(constructor_.IsEmpty());
-  ISOLATE(**exports)
 
   Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate);
-  tpl->SetClassName(S(T::name));
+  tpl->SetClassName(NewString(T::name));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
   T::InitPrototype(isolate, tpl);
 
-  constructor_.Reset(tpl->GetFunction());
-  exports->Set(S(T::name), tpl->GetFunction());
+  GET_LOCAL_AS(Function, fn, tpl->GetFunction(isolate->GetCurrentContext()));
+  constructor_.Reset(isolate, fn);
+  CHECK_OR(exports->Set(isolate->GetCurrentContext(), NewString(T::name), fn), return);
 }
 
 template <typename T>
-ManagedObject<T>::ManagedObject(wlc_handle handle) : handle_(handle) {
-  assert(!constructor_.IsEmpty());
-  HandleScope scope(constructor_.GetIsolate());
-  Local<Object> result = constructor_.Unwrap()->NewInstance();
-  result->SetAlignedPointerInInternalField(0, this);
-  instance_.Reset(result);
+Maybe<T*> ManagedObject<T>::FromLocalObject(Local<Object> value) {
+  // TODO check instanceof
+  if (value->InternalFieldCount() != 1) {
+    ThrowException(Exception::Error, "Wrong underlying object");
+    return Nothing<T*>();
+  }
+
+  T* managed_object = static_cast<T*>(value->GetAlignedPointerFromInternalField(0));
+  if (!managed_object) {
+    ThrowException(Exception::Error, "Underlying object doesn't exist anymore");
+    return Nothing<T*>();
+  }
+
+  return Just(managed_object);
 }
 
-#define DEFINE_METHOD(TPL, NAME, FN) do {\
-  Local<Function> fn = FunctionTemplate::New(\
-      isolate,\
-      FN,\
-      Local<Value>(),\
-      Signature::New(isolate, TPL))->GetFunction();\
-  TPL->PrototypeTemplate()->Set(S(NAME), fn);\
-  fn->SetName(S(NAME));\
-} while(0);
+template <typename T>
+Maybe<T*> ManagedObject<T>::Create(Isolate* isolate, wlc_handle handle) {
+  assert(!constructor_.IsEmpty());
+  auto instance = GetLocalChecked<Object>(constructor_.Unwrap()->NewInstance(isolate->GetCurrentContext()));
+  if (instance.IsEmpty()) return Nothing<T*>();
 
-#define DEFINE_ACCESSOR(TPL, NAME, GETTER, SETTER) \
-  TPL->PrototypeTemplate()->SetAccessor(\
-      S(NAME),\
-      GETTER,\
-      SETTER,\
-      Local<Value>(),\
-      AccessControl::DEFAULT,\
-      PropertyAttribute::ReadOnly,\
-      AccessorSignature::New(isolate, TPL));
+  T* result = new T(handle);
 
-#define DEFINE_GETTER(PROTO, NAME, GETTER) DEFINE_ACCESSOR(PROTO, NAME, GETTER, 0)
+  instance->SetAlignedPointerInInternalField(0, result);
+  result->instance_.Reset(isolate, instance);
 
-#define GET_HANDLE(TYPE)\
-  TYPE* managed_object = static_cast<TYPE*>(info.This()->GetAlignedPointerFromInternalField(0));\
-  if (!managed_object) THROW(Error, "Underlying " #TYPE " doesn't exist anymore");\
-  wlc_handle handle = managed_object->GetWLCHandle();
+  return Just<T*>(result);
+}
+
+template <typename T>
+T* ManagedObject<T>::FromWLCHandle(wlc_handle handle) {
+  return static_cast<T*>(wlc_handle_get_user_data(handle));
+}
 
 }
 

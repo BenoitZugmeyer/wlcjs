@@ -1,23 +1,21 @@
 #include "view.h"
+#include "output.h"
 
 namespace wlcjs {
 
 void ViewGetTitle(Local<String> property, const PropertyCallbackInfo<Value>& info) {
-  ISOLATE(info);
-  GET_HANDLE(View);
-  RETURN(info, S(wlc_view_get_title(handle)));
+  UNWRAP_OR(view, View::FromLocalObject(info.This()), return);
+  RETURN(info, NewString(wlc_view_get_title(view->GetWLCHandle())));
 }
 
 void ViewFocus(const FunctionCallbackInfo<Value>& info) {
-  ISOLATE(info);
-  GET_HANDLE(View);
-  wlc_view_focus(handle);
+  UNWRAP_OR(view, View::FromLocalObject(info.This()), return);
+  wlc_view_focus(view->GetWLCHandle());
 }
 
 void ViewClose(const FunctionCallbackInfo<Value>& info) {
-  ISOLATE(info);
-  GET_HANDLE(View);
-  wlc_view_close(handle);
+  UNWRAP_OR(view, View::FromLocalObject(info.This()), return);
+  wlc_view_close(view->GetWLCHandle());
 }
 
 void View::InitPrototype(Isolate* isolate, Local<FunctionTemplate> tpl) {

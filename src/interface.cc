@@ -4,122 +4,132 @@
 
 namespace wlcjs {
 
-#define CALLBACK(NAME, CODE, ...) do {\
-  ISOLATE(persistent_interface)\
-  HandleScope scope(isolate);\
-  Local<Object> interface = persistent_interface.Unwrap();\
-  Local<Value> v = interface->Get(S(NAME));\
-  if (v->IsFunction()) {\
-    CODE;\
-    Local<Value> arguments[] = { __VA_ARGS__ };\
-    v.As<Function>()->Call(Null(isolate), sizeof(arguments) / sizeof(arguments[0]), arguments);\
-  }\
-} while (0);\
-
-#define GET_FROM_HANDLE(TYPE, V) TYPE* V ## _js = static_cast<TYPE*>(wlc_handle_get_user_data(V));
-
 SimplePersistent<Object> persistent_interface;
+
+#define MK_SCOPE\
+  ISOLATE(persistent_interface); \
+  HandleScope scope(isolate);
+
+MaybeLocal<Value> CallCallback(const char* name, int argc, Local<Value> argv[]) {
+  ISOLATE(persistent_interface);
+  Local<Object> interface = persistent_interface.Unwrap();
+  auto v = GetLocalChecked<Value>(interface->Get(isolate->GetCurrentContext(), NewString(name)));
+  if (v.IsEmpty()) return MaybeLocal<Value>();
+  if (v->IsFunction()) {
+    return v.As<Function>()->Call(isolate->GetCurrentContext(), Null(isolate), argc, argv);
+  }
+  return Undefined(isolate);
+}
 
 bool output_created(wlc_handle output) {
   // TODO return true or false
-  Output* output_js = new Output(output);
+  MK_SCOPE
+  UNWRAP_OR(output_js, ManagedObject<Output>::Create(isolate, output), return false); // TODO maybe write some kind of log?
   wlc_handle_set_user_data(output, output_js);
-  CALLBACK("outputCreated", {}, output_js->GetInstance());
+  Local<Value> argv[] = { output_js->GetInstance() };
+  CallCallback("outputCreated", 1, argv);
   return true;
 }
 
 void output_destroyed(wlc_handle output) {
-  GET_FROM_HANDLE(Output, output);
-  CALLBACK("outputDestroyed", {}, output_js->GetInstance());
+  MK_SCOPE
+  auto output_js = Output::FromWLCHandle(output);
+  Local<Value> argv[] = { output_js->GetInstance() };
+  CallCallback("outputDestroyed", 1, argv);
   delete output_js;
 }
 
 void output_focus(wlc_handle output, bool focus) {
-  GET_FROM_HANDLE(Output, output);
-  CALLBACK(
-    "outputFocus",
-    {},
-    output_js->GetInstance(),
+  MK_SCOPE
+  Local<Value> argv[] = {
+    Output::FromWLCHandle(output)->GetInstance(),
     Boolean::New(isolate, focus),
-  );
+  };
+  CallCallback("outputFocus", 2, argv);
 }
 
 void output_resolution(wlc_handle output, const wlc_size* from, const wlc_size* to) {
+  MK_SCOPE
   // TODO handle from/to
-  CALLBACK("outputResolution", {});
+  CallCallback("outputResolution", 0, NULL);
 }
 
 bool keyboard_key(wlc_handle view, uint32_t time, const wlc_modifiers* modifiers, uint32_t key, wlc_key_state key_state) {
+  MK_SCOPE
   Local<Object> modifiers_js;
   Local<Value> view_or_undefined;
-  // TODO return true or false
-  CALLBACK(
-    "keyboardKey",
-    {
-      if (view) {
-        GET_FROM_HANDLE(View, view);
-        view_or_undefined = view_js->GetInstance();
-      }
-      else {
-        view_or_undefined = Undefined(isolate);
-      }
 
-      modifiers_js = Object::New(isolate);
-      modifiers_js->Set(S("mods"), Number::New(isolate, modifiers->mods));
-      modifiers_js->Set(S("leds"), Number::New(isolate, modifiers->leds));
-    },
+  if (view) {
+    view_or_undefined = Output::FromWLCHandle(view)->GetInstance();
+  }
+  else {
+    view_or_undefined = Undefined(isolate);
+  }
+
+  modifiers_js = Object::New(isolate);
+  modifiers_js->Set(isolate->GetCurrentContext(), NewString("mods"), Number::New(isolate, modifiers->mods));
+  modifiers_js->Set(isolate->GetCurrentContext(), NewString("leds"), Number::New(isolate, modifiers->leds));
+
+  Local<Value> argv[] = {
     view_or_undefined,
     Number::New(isolate, time),
     modifiers_js,
     Number::New(isolate, key),
-    S(enum_to_string(key_state)),
-  );
+    NewString(enum_to_string(key_state)),
+  };
+
+  // TODO return true or false
+  CallCallback("keyboardKey", 5, argv);
   return true;
 }
 
 bool view_created(wlc_handle view) {
   // TODO return true or false
-  View* view_js = new View(view);
+  MK_SCOPE
+  UNWRAP_OR(view_js, View::Create(isolate, view), return false); // TODO maybe write some kind of log?
   wlc_handle_set_user_data(view, view_js);
-  CALLBACK(
-    "viewCreated",
-    {},
+
+  Local<Value> argv[] = {
     view_js->GetInstance(),
-  );
+  };
+
+  CallCallback("viewCreated", 1, argv);
   return true;
 }
 
 void view_destroyed(wlc_handle view) {
-  GET_FROM_HANDLE(View, view);
-  CALLBACK(
-    "viewDestroyed",
-    {},
+  MK_SCOPE
+
+  auto view_js = View::FromWLCHandle(view);
+
+  Local<Value> argv[] = {
     view_js->GetInstance(),
-  );
+  };
+
+  CallCallback("viewDestroyed", 1, argv);
+
   delete view_js;
 }
 
 void view_focus(wlc_handle view, bool focus) {
-  GET_FROM_HANDLE(View, view);
-  CALLBACK(
-    "viewFocus",
-    {},
-    view_js->GetInstance(),
+  MK_SCOPE
+
+  Local<Value> argv[] = {
+    View::FromWLCHandle(view)->GetInstance(),
     Boolean::New(isolate, focus),
-  );
+  };
+  CallCallback("viewFocus", 2, argv);
 }
 
 void view_move_to_output(wlc_handle view, wlc_handle from_output, wlc_handle to_output) {
-  GET_FROM_HANDLE(Output, from_output);
-  GET_FROM_HANDLE(Output, to_output);
-  GET_FROM_HANDLE(View, view);
-  CALLBACK(
-    "viewMoveToOutput",
-    {},
-    view_js->GetInstance(),
-    from_output_js->GetInstance(),
-    to_output_js->GetInstance(),
-  );
+  MK_SCOPE
+
+  Local<Value> argv[] = {
+    View::FromWLCHandle(view)->GetInstance(),
+    Output::FromWLCHandle(from_output)->GetInstance(),
+    Output::FromWLCHandle(to_output)->GetInstance(),
+  };
+  CallCallback("viewMoveToOutput", 3, argv);
 }
 
 wlc_interface global_interface = {
@@ -190,8 +200,8 @@ wlc_interface global_interface = {
 
 };
 
-wlc_interface* get_wlc_interface(Local<Object> value) {
-  persistent_interface.Reset(value);
+wlc_interface* get_wlc_interface(Isolate* isolate, Local<Object> value) {
+  persistent_interface.Reset(isolate, value);
   return &global_interface;
 }
 
