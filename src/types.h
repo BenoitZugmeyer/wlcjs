@@ -79,6 +79,36 @@ inline bool Unwrap(MaybeLocal<INPUT> maybe, OUTPUT* dest) {
   return TryCast(maybe.ToLocalChecked(), dest);
 }
 
+inline MaybeLocal<Object> Convert(Isolate* isolate, const wlc_size* size) {
+  if (!size) return MaybeLocal<Object>();
+
+  auto context = isolate->GetCurrentContext();
+
+  Local<Object> result = Object::New(isolate);
+  if (result->Set(context, NewString("width"), Integer::New(isolate, size->w)).IsNothing() ||
+      result->Set(context, NewString("height"), Integer::New(isolate, size->h)).IsNothing()) {
+    return MaybeLocal<Object>();
+  }
+
+  return MaybeLocal<Object>(result);
+}
+
+inline Maybe<wlc_geometry> Convert(Isolate* isolate, Local<Object> desc) {
+  auto context = isolate->GetCurrentContext();
+
+  wlc_geometry geometry;
+
+  if (!Unwrap(desc->Get(context, NewString("x")), &geometry.origin.x) ||
+      !Unwrap(desc->Get(context, NewString("y")), &geometry.origin.y) ||
+      !Unwrap(desc->Get(context, NewString("width")), &geometry.size.w) ||
+      !Unwrap(desc->Get(context, NewString("height")), &geometry.size.h)) {
+    return Nothing<wlc_geometry>();
+  }
+
+  return Just<wlc_geometry>(geometry);
+}
+
+
 }
 
 #endif
