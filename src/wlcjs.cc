@@ -17,10 +17,6 @@ uv_timer_t async_run_timer;
 SimplePersistent<Function> persistent_log_handler;
 int state = STATE_UNINITIALIZED;
 
-void assert_state(int expectedState, const char* ex) {
-  if (!(state & expectedState)) ThrowException(Exception::Error, ex);
-}
-
 int run_uv_loop(void *args) {
   uv_run(uv_default_loop(), UV_RUN_NOWAIT);
   wlc_event_source_timer_update(timer, 1);
@@ -48,7 +44,7 @@ char* v8string_to_cstring(Local<String> str) {
 
 METHOD(Init) {
   ISOLATE(info);
-  assert_state(STATE_UNINITIALIZED, "Can't call init twice");
+  if (~state & STATE_UNINITIALIZED) THROW(Error, "Can't call init twice");
 
   Local<Context> context = isolate->GetCurrentContext();
   Local<Object> interface;
@@ -96,8 +92,8 @@ void run_cb(uv_timer_t* handle) {
 }
 
 METHOD(Run) {
-  assert_state(STATE_INITIALIZED, "'init' has to be called before calling 'run'");
-  assert_state(~STATE_RUNNING, "'run' can't be called twice");
+  if (~state & STATE_INITIALIZED) THROW(Error, "'init' has to be called before calling 'run'");
+  if (state & STATE_RUNNING) THROW(Error, "'run' can't be called twice");
 
   uv_timer_init(uv_default_loop(), &async_run_timer);
   uv_timer_start(&async_run_timer, run_cb, 0, 0);
@@ -116,7 +112,7 @@ METHOD(SetLogHandler) {
 
 METHOD(GetKeysymForKey) {
   ISOLATE(info)
-  assert_state(STATE_INITIALIZED, "'init' has to be called before calling 'getKeysymForKey'");
+  if (~state & STATE_INITIALIZED) THROW(Error, "'init' has to be called before calling 'getKeysymForKey'");
 
   // TODO modifiers support
   uint32_t key;
@@ -128,7 +124,7 @@ METHOD(GetKeysymForKey) {
 }
 
 METHOD(GetKeysymNameForKey) {
-  assert_state(STATE_INITIALIZED, "'init' has to be called before calling 'getKeysymNameForKey'");
+  if (~state & STATE_INITIALIZED) THROW(Error, "'init' has to be called before calling 'getKeysymNameForKey'");
 
   // TODO modifiers support
   uint32_t key;
@@ -142,13 +138,13 @@ METHOD(GetKeysymNameForKey) {
 }
 
 METHOD(GetBackendType) {
-  assert_state(STATE_INITIALIZED, "'init' has to be called before calling 'getBackendType'");
+  if (~state & STATE_INITIALIZED) THROW(Error, "'init' has to be called before calling 'getBackendType'");
   RETURN(info, NewString(enum_to_string(wlc_get_backend_type())));
 }
 
 METHOD(GetOutputs) {
   ISOLATE(info)
-  assert_state(STATE_INITIALIZED, "'init' has to be called before calling 'getOutputs'");
+  if (state & ~STATE_INITIALIZED) THROW(Error, "'init' has to be called before calling 'getOutputs'");
   size_t memb;
   const wlc_handle* outputs = wlc_get_outputs(&memb);
   Local<Array> result = Array::New(isolate, memb);
