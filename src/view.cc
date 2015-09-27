@@ -42,12 +42,18 @@ void ViewSendToBack(const FunctionCallbackInfo<Value>& info) {
   wlc_view_send_to_back(view->GetWLCHandle());
 }
 
+void ViewBringToFront(const FunctionCallbackInfo<Value>& info) {
+  UNWRAP_VIEW
+  wlc_view_bring_to_front(view->GetWLCHandle());
+}
+
 void View::InitPrototype(Isolate* isolate, Local<FunctionTemplate> tpl) {
   DEFINE_GETTER(tpl, "title", ViewGetTitle);
   DEFINE_METHOD(tpl, "close", ViewClose);
   DEFINE_METHOD(tpl, "focus", ViewFocus);
   DEFINE_ACCESSOR(tpl, "output", ViewGetOutput, ViewSetOutput);
   DEFINE_METHOD(tpl, "sendToBack", ViewSendToBack);
+  DEFINE_METHOD(tpl, "bringToFront", ViewBringToFront);
 }
 
 }
