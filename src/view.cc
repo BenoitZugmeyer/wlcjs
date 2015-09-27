@@ -37,11 +37,17 @@ void ViewSetOutput(Local<String> property, Local<Value> value, const PropertyCal
   wlc_view_set_output(view->GetWLCHandle(), output->GetWLCHandle());
 }
 
+void ViewSendToBack(const FunctionCallbackInfo<Value>& info) {
+  UNWRAP_VIEW
+  wlc_view_send_to_back(view->GetWLCHandle());
+}
+
 void View::InitPrototype(Isolate* isolate, Local<FunctionTemplate> tpl) {
   DEFINE_GETTER(tpl, "title", ViewGetTitle);
   DEFINE_METHOD(tpl, "close", ViewClose);
   DEFINE_METHOD(tpl, "focus", ViewFocus);
   DEFINE_ACCESSOR(tpl, "output", ViewGetOutput, ViewSetOutput);
+  DEFINE_METHOD(tpl, "sendToBack", ViewSendToBack);
 }
 
 }
