@@ -52,9 +52,13 @@ void ManagedObject<T>::Init(Isolate* isolate, Local<Object> exports) {
 
   T::InitPrototype(isolate, tpl);
 
-  GET_LOCAL_AS(Function, fn, tpl->GetFunction(isolate->GetCurrentContext()));
+  Local<Function> fn;
+  if (!Unwrap(tpl->GetFunction(isolate->GetCurrentContext()), &fn)) return;
+
   constructor_.Reset(isolate, fn);
-  CHECK_OR(exports->Set(isolate->GetCurrentContext(), NewString(T::name), fn), return);
+  if (exports->Set(isolate->GetCurrentContext(), NewString(T::name), fn).IsNothing()) {
+    return;
+  }
 }
 
 template <typename T>
@@ -77,8 +81,10 @@ Maybe<T*> ManagedObject<T>::FromLocalObject(Local<Object> value) {
 template <typename T>
 Maybe<T*> ManagedObject<T>::Create(Isolate* isolate, wlc_handle handle) {
   assert(!constructor_.IsEmpty());
-  auto instance = GetLocalChecked<Object>(constructor_.Unwrap()->NewInstance(isolate->GetCurrentContext()));
-  if (instance.IsEmpty()) return Nothing<T*>();
+  Local<Object> instance;
+  if (!Unwrap(constructor_.Unwrap()->NewInstance(isolate->GetCurrentContext()), &instance)) {
+    return Nothing<T*>();
+  }
 
   T* result = new T(handle);
 

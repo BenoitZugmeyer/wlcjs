@@ -51,15 +51,29 @@ METHOD(Init) {
   assert_state(STATE_UNINITIALIZED, "Can't call init twice");
 
   Local<Context> context = isolate->GetCurrentContext();
+  Local<Object> interface;
+  Local<Object> process;
+  Local<Array> argv_js;
 
-  GET_LOCAL_AS(Object, interface, info[0], "Init argument");
-  GET_LOCAL_AS(Object, process, context->Global()->Get(context, NewString("process")), "process");
-  GET_LOCAL_AS(Array, argv_js, process->Get(context, NewString("argv")), "process.argv");
+  if (!TryCast(info[0], &interface)) {
+    THROW(TypeError, "wlc.init argument must be an Object");
+  }
 
+  if (!Unwrap(context->Global()->Get(context, NewString("process")), &process)) {
+    THROW(Error, "global.process must be an Object");
+  }
+
+  if (!Unwrap(process->Get(context, NewString("argv")), &argv_js)) {
+    THROW(TypeError, "global.process.argv must be an Array");
+  }
+
+  Local<String> str;
   int argc = argv_js->Length();
   char *argv[argc];
   for (int i = 0; i < argc; i += 1) {
-    GET_LOCAL_AS(String, str, argv_js->Get(context, i), "process.argv[%d]", i);
+    if (!Unwrap(argv_js->Get(context, i), &str)) {
+      THROW(TypeError, "global.process.argv[%d] must be a String", i);
+    }
     argv[i] = v8string_to_cstring(str);
   }
 
@@ -95,7 +109,8 @@ METHOD(Terminate) {
 
 METHOD(SetLogHandler) {
   ISOLATE(info);
-  GET_LOCAL_AS(Function, handler, info[0], "logHandler argument");
+  Local<Function> handler;
+  if (!TryCast(info[0], &handler)) THROW(TypeError, "logHandler argument must be a Function");
   persistent_log_handler.Reset(isolate, handler);
 }
 
@@ -103,22 +118,22 @@ METHOD(GetKeysymForKey) {
   ISOLATE(info)
   assert_state(STATE_INITIALIZED, "'init' has to be called before calling 'getKeysymForKey'");
 
-  GET_LOCAL_AS(Number, key_js, info[0], "getKeysymForKey argument");
-
   // TODO modifiers support
-  UNWRAP_OR(key, key_js->Uint32Value(isolate->GetCurrentContext()), THROW(Error, "Error getting key as an uint32"));
+  uint32_t key;
+  if (!TryCast(info[0], &key)) THROW(TypeError, "getKeysymForKey argument must be a number");
+
   uint32_t keysym = wlc_keyboard_get_keysym_for_key(key, NULL);
 
   RETURN(info, Integer::NewFromUnsigned(isolate, keysym));
 }
 
 METHOD(GetKeysymNameForKey) {
-  ISOLATE(info)
   assert_state(STATE_INITIALIZED, "'init' has to be called before calling 'getKeysymNameForKey'");
-  GET_LOCAL_AS(Number, key_js, info[0], "getKeysymNameForKey argument");
 
   // TODO modifiers support
-  UNWRAP_OR(key, key_js->Uint32Value(isolate->GetCurrentContext()), THROW(Error, "Error getting key as an uint32"));
+  uint32_t key;
+  if (!TryCast(info[0], &key)) THROW(TypeError, "getKeysymNameForKey argument must be a number");
+
   uint32_t keysym = wlc_keyboard_get_keysym_for_key(key, NULL);
   char buffer[100];
   if (xkb_keysym_get_name(keysym, buffer, 100) < 0) THROW(Error, "Invalid keysym");
@@ -140,23 +155,28 @@ METHOD(GetOutputs) {
   Local<Context> context = isolate->GetCurrentContext();
 
   for (size_t i = 0; i < memb; i += 1) {
-    Output* output = static_cast<Output*>(wlc_handle_get_user_data(outputs[i]));
-    CHECK_OR(result->Set(context, i, output->GetInstance()), return);
+    if (result->Set(context, i, Output::FromWLCHandle(outputs[i])->GetInstance()).IsNothing()) {
+      return;
+    }
   }
 
   RETURN(info, result);
 }
 
 METHOD(Exec) {
-  GET_LOCAL_AS(String, bin_js, info[0], "exec first argument");
+  Local<String> bin_js;
+  if (!TryCast(info[0], &bin_js)) {
+    THROW(TypeError, "wlc.exec first argument must be a String");
+  }
 
   char* bin = v8string_to_cstring(bin_js);
 
   size_t length = info.Length();
   char* argv[length + 1];
 
+  Local<String> str;
   for (size_t i = 0; i < length; i += 1) {
-    GET_LOCAL_AS(String, str, info[i], "Argument %d", i);
+    if (!TryCast(info[i], &str)) THROW(TypeError, "wlc.exec argument %d must be a String", i);
     argv[i] = v8string_to_cstring(str);
   }
   argv[length] = NULL;

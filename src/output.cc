@@ -2,8 +2,12 @@
 
 namespace wlcjs {
 
+#define UNWRAP_OUTPUT \
+  Output* output; \
+  if (!Unwrap(Output::FromLocalObject(info.This()), &output)) return;
+
 void OutputGetName(Local<String> property, const PropertyCallbackInfo<Value>& info) {
-  UNWRAP_OR(output, Output::FromLocalObject(info.This()), return);
+  UNWRAP_OUTPUT
   RETURN(info, NewString(wlc_output_get_name(output->GetWLCHandle())));
 }
 

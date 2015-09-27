@@ -13,8 +13,12 @@ SimplePersistent<Object> persistent_interface;
 MaybeLocal<Value> CallCallback(const char* name, int argc, Local<Value> argv[]) {
   ISOLATE(persistent_interface);
   Local<Object> interface = persistent_interface.Unwrap();
-  auto v = GetLocalChecked<Value>(interface->Get(isolate->GetCurrentContext(), NewString(name)));
-  if (v.IsEmpty()) return MaybeLocal<Value>();
+  Local<Value> v;
+
+  if (!Unwrap(interface->Get(isolate->GetCurrentContext(), NewString(name)), &v)) {
+    return MaybeLocal<Value>();
+  }
+
   if (v->IsFunction()) {
     return v.As<Function>()->Call(isolate->GetCurrentContext(), Null(isolate), argc, argv);
   }
@@ -24,7 +28,12 @@ MaybeLocal<Value> CallCallback(const char* name, int argc, Local<Value> argv[]) 
 bool output_created(wlc_handle output) {
   // TODO return true or false
   MK_SCOPE
-  UNWRAP_OR(output_js, ManagedObject<Output>::Create(isolate, output), return false); // TODO maybe write some kind of log?
+  Output* output_js;
+
+  if (!Unwrap(ManagedObject<Output>::Create(isolate, output), &output_js)) {
+    return false; // TODO maybe write some kind of log?
+  }
+
   wlc_handle_set_user_data(output, output_js);
   Local<Value> argv[] = { output_js->GetInstance() };
   CallCallback("outputCreated", 1, argv);
@@ -86,7 +95,10 @@ bool keyboard_key(wlc_handle view, uint32_t time, const wlc_modifiers* modifiers
 bool view_created(wlc_handle view) {
   // TODO return true or false
   MK_SCOPE
-  UNWRAP_OR(view_js, View::Create(isolate, view), return false); // TODO maybe write some kind of log?
+  View* view_js;
+  if (!Unwrap(View::Create(isolate, view), &view_js)) {
+    return false; // TODO maybe write some kind of log?
+  }
   wlc_handle_set_user_data(view, view_js);
 
   Local<Value> argv[] = {

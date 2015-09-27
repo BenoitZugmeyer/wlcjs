@@ -92,11 +92,15 @@ inline void ThrowException(Local<Value> (*ex)(Local<String>), const char* format
 #define METHOD(N) void N(const FunctionCallbackInfo<Value>& info)
 
 #define DEFINE_METHOD(TPL, NAME, FN) do {\
-  GET_LOCAL_AS(Function, fn, FunctionTemplate::New(\
+  Local<Function> fn;\
+  MaybeLocal<Function> maybe_fn =\
+    FunctionTemplate::New(\
       isolate,\
       FN,\
       Local<Value>(),\
-      Signature::New(isolate, TPL))->GetFunction(isolate->GetCurrentContext()))\
+      Signature::New(isolate, TPL)\
+    )->GetFunction(isolate->GetCurrentContext());\
+  if (!Unwrap(maybe_fn, &fn)) THROW(Error, "Can't set function " NAME);\
   TPL->PrototypeTemplate()->Set(NewString(NAME), fn);\
   fn->SetName(NewString(NAME));\
 } while(0);

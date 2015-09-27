@@ -38,6 +38,11 @@ inline bool IsType(Local<Value>&) {
   return false;
 }
 
+template <>
+inline bool IsType<Value>(Local<Value>&) {
+  return true;
+}
+
 _DEFINE(Object)
 _DEFINE(Array)
 _DEFINE(String)
@@ -45,47 +50,34 @@ _DEFINE(Number)
 _DEFINE(Function)
 
 template <class T>
-inline Local<T> GetLocalChecked(Local<Value> value, const char* name, va_list args) {
-  if (!IsType<T>(value)) {
-    char buffer[256];
-    vsnprintf(buffer, 256, name, args);
-    ThrowException(Exception::TypeError, "%s should be a %s", buffer, GetTypeName<T>());
-    return Local<T>();
-  }
-  return value.As<T>();
+inline bool Unwrap(Maybe<T> value, T* dest) {
+  if (value.IsNothing()) return false;
+  *dest = value.FromJust();
+  return true;
+} ;
+
+template <class T>
+inline bool TryCast(Local<Value> value, Local<T>* dest) {
+  if (!IsType<T>(value)) return false;
+  *dest = value.As<T>();
+  return true;
 }
 
-template <class T>
-inline Local<T> GetLocalChecked(Local<Value> value, const char* name, ...)
-  MK_VARIADIC_N(GetLocalChecked<T>, name, value)
-
-template <class T>
-inline Local<T> GetLocalChecked(MaybeLocal<Value> maybe, const char* name, va_list args) {
-  if (maybe.IsEmpty()) return Local<T>();
-  Local<Value> value = maybe.ToLocalChecked();
-  return GetLocalChecked<T>(value, name, args);
+inline bool TryCast(Local<Value> value, uint32_t* dest) {
+  if (!IsType<Number>(value)) return false;
+  return Unwrap(value->Uint32Value(Isolate::GetCurrent()->GetCurrentContext()), dest);
 }
 
-template <class T>
-inline Local<T> GetLocalChecked(MaybeLocal<T> maybe) {
-  if (maybe.IsEmpty()) return Local<T>();
-  return maybe.ToLocalChecked();
+inline bool TryCast(Local<Value> value, int32_t* dest) {
+  if (!IsType<Number>(value)) return false;
+  return Unwrap(value->Int32Value(Isolate::GetCurrent()->GetCurrentContext()), dest);
 }
 
-template <class T>
-inline Local<T> GetLocalChecked(MaybeLocal<Value> maybe, const char* name, ...)
-  MK_VARIADIC_N(GetLocalChecked<T>, name, maybe)
-
-#define GET_LOCAL_AS(TYPE, NAME, VALUE, ...) \
-  Local<TYPE> NAME = GetLocalChecked<TYPE>(VALUE, ##__VA_ARGS__);\
-  if (NAME.IsEmpty()) return;
-
-#define CHECK_OR(VALUE, OR) if ((VALUE).IsNothing()) { OR; }
-
-#define UNWRAP_OR(NAME, VALUE, OR) \
-  auto maybe_ ## NAME = VALUE; \
-  if (maybe_ ## NAME .IsNothing()) { OR; } \
-  auto NAME = maybe_ ## NAME .FromJust();
+template <class INPUT, class OUTPUT>
+inline bool Unwrap(MaybeLocal<INPUT> maybe, OUTPUT* dest) {
+  if (maybe.IsEmpty()) return false;
+  return TryCast(maybe.ToLocalChecked(), dest);
+}
 
 }
 
