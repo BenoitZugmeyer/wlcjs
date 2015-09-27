@@ -117,6 +117,18 @@ inline bool TryCast(const wlc_modifiers* modifiers, Local<Object>* output) {
   );
 }
 
+inline bool TryCast(const wlc_origin* origin, Local<Object>* output) {
+  if (!origin) return false;
+
+  auto isolate = Isolate::GetCurrent();
+  auto context = isolate->GetCurrentContext();
+
+  *output = Object::New(isolate);
+  return (
+    (*output)->Set(context, NewString("x"), Integer::New(isolate, origin->x)).IsJust() &&
+    (*output)->Set(context, NewString("y"), Integer::New(isolate, origin->y)).IsJust()
+  );
+}
 
 }
 

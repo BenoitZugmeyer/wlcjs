@@ -121,6 +121,7 @@ wlc_interface* get_wlc_interface(Isolate*, Local<Object>);
 const char* enum_to_string(wlc_log_type);
 const char* enum_to_string(wlc_backend_type);
 const char* enum_to_string(wlc_key_state);
+const char* enum_to_string(wlc_button_state);
 
 }
 

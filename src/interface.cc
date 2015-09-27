@@ -25,6 +25,12 @@ MaybeLocal<Value> CallCallback(const char* name, int argc, Local<Value> argv[]) 
   return Undefined(isolate);
 }
 
+Local<Value> GetViewOrUndefined(wlc_handle view) {
+  ISOLATE(persistent_interface);
+  if (!view) return Undefined(isolate);
+  return Output::FromWLCHandle(view)->GetInstance();
+}
+
 bool output_created(wlc_handle output) {
   // TODO return true or false
   MK_SCOPE
@@ -77,19 +83,10 @@ void output_resolution(wlc_handle output, const wlc_size* from, const wlc_size* 
 bool keyboard_key(wlc_handle view, uint32_t time, const wlc_modifiers* modifiers, uint32_t key, wlc_key_state key_state) {
   MK_SCOPE
   Local<Object> modifiers_js;
-  Local<Value> view_or_undefined;
-
-  if (view) {
-    view_or_undefined = Output::FromWLCHandle(view)->GetInstance();
-  }
-  else {
-    view_or_undefined = Undefined(isolate);
-  }
-
   if (!TryCast(modifiers, &modifiers_js)) return true;
 
   Local<Value> argv[] = {
-    view_or_undefined,
+    GetViewOrUndefined(view),
     Number::New(isolate, time),
     modifiers_js,
     Number::New(isolate, key),
@@ -153,6 +150,70 @@ void view_move_to_output(wlc_handle view, wlc_handle from_output, wlc_handle to_
   CallCallback("viewMoveToOutput", 3, argv);
 }
 
+bool pointer_button(wlc_handle view, uint32_t time,
+    const struct wlc_modifiers* modifiers, uint32_t button,
+    enum wlc_button_state state, const struct wlc_origin* origin) {
+
+  MK_SCOPE
+  Local<Object> modifiers_js;
+  Local<Object> origin_js;
+  if (!TryCast(modifiers, &modifiers_js)) return true;
+  if (!TryCast(origin, &origin_js)) return true;
+
+  Local<Value> argv[] = {
+    GetViewOrUndefined(view),
+    Number::New(isolate, time),
+    modifiers_js,
+    Number::New(isolate, button),
+    NewString(enum_to_string(state)),
+    origin_js,
+  };
+  CallCallback("pointerButton", 6, argv);
+  return true; // TODO return true or false
+}
+
+bool pointer_scroll(wlc_handle view, uint32_t time,
+    const struct wlc_modifiers* modifiers, uint8_t axis_bits,
+    double amount[2]) {
+
+  MK_SCOPE
+  auto context = isolate->GetCurrentContext();
+  Local<Object> modifiers_js;
+  if (!TryCast(modifiers, &modifiers_js)) return true;
+
+  Local<Array> amount_js = Array::New(isolate, 2);
+  if (amount_js->Set(context, 0, Number::New(isolate, amount[0])).IsNothing() ||
+      amount_js->Set(context, 1, Number::New(isolate, amount[1])).IsNothing()) {
+    return true;
+  }
+
+  Local<Value> argv[] = {
+    GetViewOrUndefined(view),
+    Number::New(isolate, time),
+    modifiers_js,
+    Number::New(isolate, axis_bits),
+    amount_js,
+  };
+  CallCallback("pointerScroll", 5, argv);
+  return true;
+}
+
+bool pointer_motion(wlc_handle view, uint32_t time,
+    const struct wlc_origin* origin) {
+
+  MK_SCOPE
+  Local<Object> origin_js;
+  if (!TryCast(origin, &origin_js)) return false;
+
+  Local<Value> argv[] = {
+    GetViewOrUndefined(view),
+    Number::New(isolate, time),
+    origin_js,
+  };
+  CallCallback("pointerMotion", 3, argv);
+  return false;
+}
+
 wlc_interface global_interface = {
 
   .output = {
@@ -195,11 +256,11 @@ wlc_interface global_interface = {
 
   .pointer = {
     // bool (*button)(wlc_handle view, uint32_t time, const struct wlc_modifiers*, uint32_t button, enum wlc_button_state, const struct wlc_origin*);
-    .button = NULL,
+    .button = pointer_button,
     // bool (*scroll)(wlc_handle view, uint32_t time, const struct wlc_modifiers*, uint8_t axis_bits, double amount[2]);
-    .scroll = NULL,
+    .scroll = pointer_scroll,
     // bool (*motion)(wlc_handle view, uint32_t time, const struct wlc_origin*);
-    .motion = NULL,
+    .motion = pointer_motion,
   },
 
   .touch = {

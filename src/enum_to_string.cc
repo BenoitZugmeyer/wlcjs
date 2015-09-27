@@ -30,4 +30,9 @@ ENUM_TEXT(key_state,
   CASE(WLC_KEY_STATE_PRESSED, "pressed")
 );
 
+ENUM_TEXT(button_state,
+  CASE(WLC_BUTTON_STATE_RELEASED, "released")
+  CASE(WLC_BUTTON_STATE_PRESSED, "pressed")
+);
+
 }
