@@ -55,7 +55,7 @@ void ViewSetGeometry(const FunctionCallbackInfo<Value>& info) {
   Local<Value> edge_js;
 
   if (!TryCast(info[0], &geometry_js)) THROW(TypeError, "view.setGeometry argument is not an Object");
-  if (!Unwrap(Convert(isolate, geometry_js), &geometry)) return;
+  if (!TryCast(geometry_js, &geometry)) return;
   if (!Unwrap(geometry_js->Get(isolate->GetCurrentContext(), NewString("edge")), &edge_js)) return;
 
   uint32_t edge;

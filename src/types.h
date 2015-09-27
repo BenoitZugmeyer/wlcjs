@@ -54,7 +54,7 @@ inline bool Unwrap(Maybe<T> value, T* dest) {
   if (value.IsNothing()) return false;
   *dest = value.FromJust();
   return true;
-} ;
+};
 
 template <class T>
 inline bool TryCast(Local<Value> value, Local<T>* dest) {
@@ -79,35 +79,30 @@ inline bool Unwrap(MaybeLocal<INPUT> maybe, OUTPUT* dest) {
   return TryCast(maybe.ToLocalChecked(), dest);
 }
 
-inline MaybeLocal<Object> Convert(Isolate* isolate, const wlc_size* size) {
-  if (!size) return MaybeLocal<Object>();
+inline bool TryCast(Local<Object> desc, wlc_geometry* geometry) {
+  auto context = Isolate::GetCurrent()->GetCurrentContext();
 
-  auto context = isolate->GetCurrentContext();
-
-  Local<Object> result = Object::New(isolate);
-  if (result->Set(context, NewString("width"), Integer::New(isolate, size->w)).IsNothing() ||
-      result->Set(context, NewString("height"), Integer::New(isolate, size->h)).IsNothing()) {
-    return MaybeLocal<Object>();
-  }
-
-  return MaybeLocal<Object>(result);
+  return (
+    Unwrap(desc->Get(context, NewString("x")), &geometry->origin.x) &&
+    Unwrap(desc->Get(context, NewString("y")), &geometry->origin.y) &&
+    Unwrap(desc->Get(context, NewString("width")), &geometry->size.w) &&
+    Unwrap(desc->Get(context, NewString("height")), &geometry->size.h)
+  );
 }
 
-inline Maybe<wlc_geometry> Convert(Isolate* isolate, Local<Object> desc) {
+
+inline bool TryCast(const wlc_size* size, Local<Object>* output) {
+  if (!size) return false;
+
+  auto isolate = Isolate::GetCurrent();
   auto context = isolate->GetCurrentContext();
 
-  wlc_geometry geometry;
-
-  if (!Unwrap(desc->Get(context, NewString("x")), &geometry.origin.x) ||
-      !Unwrap(desc->Get(context, NewString("y")), &geometry.origin.y) ||
-      !Unwrap(desc->Get(context, NewString("width")), &geometry.size.w) ||
-      !Unwrap(desc->Get(context, NewString("height")), &geometry.size.h)) {
-    return Nothing<wlc_geometry>();
-  }
-
-  return Just<wlc_geometry>(geometry);
+  *output = Object::New(isolate);
+  return (
+    (*output)->Set(context, NewString("width"), Integer::New(isolate, size->w)).IsJust() &&
+    (*output)->Set(context, NewString("height"), Integer::New(isolate, size->h)).IsJust()
+  );
 }
-
 
 }
 

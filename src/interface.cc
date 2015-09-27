@@ -61,8 +61,8 @@ void output_resolution(wlc_handle output, const wlc_size* from, const wlc_size* 
   MK_SCOPE
   Local<Object> from_js;
   Local<Object> to_js;
-  if (!Unwrap(Convert(isolate, from), &from_js)) return;
-  if (!Unwrap(Convert(isolate, to), &to_js)) return;
+  if (!TryCast(from, &from_js)) return;
+  if (!TryCast(to, &to_js)) return;
 
   auto output_js = Output::FromWLCHandle(output);
   if (!output_js) return;
