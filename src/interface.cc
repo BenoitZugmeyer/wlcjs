@@ -59,8 +59,19 @@ void output_focus(wlc_handle output, bool focus) {
 
 void output_resolution(wlc_handle output, const wlc_size* from, const wlc_size* to) {
   MK_SCOPE
-  // TODO handle from/to
-  CallCallback("outputResolution", 0, NULL);
+  Local<Object> from_js;
+  Local<Object> to_js;
+  if (!Unwrap(Convert(isolate, from), &from_js)) return;
+  if (!Unwrap(Convert(isolate, to), &to_js)) return;
+
+  auto output_js = Output::FromWLCHandle(output);
+  if (!output_js) return;
+  Local<Value> argv[] = {
+    output_js->GetInstance(),
+    from_js,
+    to_js,
+  };
+  CallCallback("outputResolution", 3, argv);
 }
 
 bool keyboard_key(wlc_handle view, uint32_t time, const wlc_modifiers* modifiers, uint32_t key, wlc_key_state key_state) {
