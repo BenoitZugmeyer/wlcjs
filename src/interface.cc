@@ -86,9 +86,7 @@ bool keyboard_key(wlc_handle view, uint32_t time, const wlc_modifiers* modifiers
     view_or_undefined = Undefined(isolate);
   }
 
-  modifiers_js = Object::New(isolate);
-  modifiers_js->Set(isolate->GetCurrentContext(), NewString("mods"), Number::New(isolate, modifiers->mods));
-  modifiers_js->Set(isolate->GetCurrentContext(), NewString("leds"), Number::New(isolate, modifiers->leds));
+  if (!TryCast(modifiers, &modifiers_js)) return true;
 
   Local<Value> argv[] = {
     view_or_undefined,

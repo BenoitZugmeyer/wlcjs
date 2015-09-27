@@ -104,6 +104,20 @@ inline bool TryCast(const wlc_size* size, Local<Object>* output) {
   );
 }
 
+inline bool TryCast(const wlc_modifiers* modifiers, Local<Object>* output) {
+  if (!modifiers) return false;
+
+  auto isolate = Isolate::GetCurrent();
+  auto context = isolate->GetCurrentContext();
+
+  *output = Object::New(isolate);
+  return (
+    (*output)->Set(context, NewString("mods"), Integer::New(isolate, modifiers->mods)).IsJust() &&
+    (*output)->Set(context, NewString("height"), Integer::New(isolate, modifiers->leds)).IsJust()
+  );
+}
+
+
 }
 
 #endif
