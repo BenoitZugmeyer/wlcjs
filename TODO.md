@@ -29,7 +29,7 @@ Output
 - [ ] `wlc_output_get_mask(wlc_handle output) -> uint32_t`
 - [ ] `wlc_output_set_mask(wlc_handle output, uint32_t mask) -> void`
 - [ ] `wlc_output_get_pixels(wlc_handle output, bool (*pixels)(const struct wlc_size *size, uint8_t *rgba, void *arg), void *arg) -> void`
-- [ ] `wlc_output_get_views(wlc_handle output, size_t *out_memb) -> const wlc_handle*`
+- [x] `wlc_output_get_views(wlc_handle output, size_t *out_memb) -> const wlc_handle*`
 - [ ] `wlc_output_get_mutable_views(wlc_handle output, size_t *out_memb) -> wlc_handle*`
 - [ ] `wlc_output_set_views(wlc_handle output, const wlc_handle *views, size_t memb) -> bool`
 - [ ] `wlc_output_focus(wlc_handle output) -> void`
