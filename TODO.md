@@ -24,7 +24,7 @@ Output
 - [ ] `wlc_output_get_connector_id(wlc_handle output) -> uint32_t`
 - [ ] `wlc_output_get_sleep(wlc_handle output) -> bool`
 - [ ] `wlc_output_set_sleep(wlc_handle output, bool sleep) -> void`
-- [ ] `wlc_output_get_resolution(wlc_handle output) -> const struct wlc_size*`
+- [x] `wlc_output_get_resolution(wlc_handle output) -> const struct wlc_size*`
 - [ ] `wlc_output_set_resolution(wlc_handle output, const struct wlc_size *resolution) -> void`
 - [ ] `wlc_output_get_mask(wlc_handle output) -> uint32_t`
 - [ ] `wlc_output_set_mask(wlc_handle output, uint32_t mask) -> void`

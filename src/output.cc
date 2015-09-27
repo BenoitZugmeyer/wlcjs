@@ -29,9 +29,23 @@ void OutputGetViews(Local<String> property, const PropertyCallbackInfo<Value>& i
   RETURN(info, result);
 }
 
+void OutputGetResolution(Local<String> property, const PropertyCallbackInfo<Value>& info) {
+  ISOLATE(info);
+  UNWRAP_OUTPUT
+
+  const wlc_size* resolution = wlc_output_get_resolution(output->GetWLCHandle());
+  if (!resolution) return;
+
+  Local<Object> resolution_js;
+  if (!Unwrap(Convert(isolate, resolution), &resolution_js)) return;
+
+  RETURN(info, resolution_js);
+}
+
 void Output::InitPrototype(Isolate* isolate, Local<FunctionTemplate> tpl) {
   DEFINE_GETTER(tpl, "name", OutputGetName);
   DEFINE_GETTER(tpl, "views", OutputGetViews);
+  DEFINE_GETTER(tpl, "resolution", OutputGetResolution);
 }
 
 }
