@@ -43,40 +43,17 @@ using v8::TryCatch;
 
 #define ISOLATE(V) Isolate* isolate = (V).GetIsolate();
 
-#define MK_VARIADIC(ORIGIN, LAST_ARG) {\
-  va_list args; \
-  va_start(args, LAST_ARG); \
-  auto result = ORIGIN(LAST_ARG, args); \
-  va_end(args); \
-  return result;\
-}
-
-#define MK_VARIADIC_N(ORIGIN, LAST_ARG, ...) {\
-  va_list args; \
-  va_start(args, LAST_ARG); \
-  auto result = ORIGIN(__VA_ARGS__, LAST_ARG, args); \
-  va_end(args); \
-  return result;\
-}
-
-
 inline Local<String> NewString(const char* s) {
   return String::NewFromUtf8(Isolate::GetCurrent(), s, NewStringType::kInternalized).ToLocalChecked();
 }
 
-inline Local<String> NewStringFormated(const char* format, va_list args) {
-  char buffer[256];
-  vsnprintf(buffer, 256, format, args);
-  return NewString(buffer);
-}
-
-inline Local<String> NewStringFormated(const char* format, ...)
-  MK_VARIADIC(NewStringFormated, format)
-
 inline void ThrowException(Local<Value> (*ex)(Local<String>), const char* format, ...) {
   va_list args;
   va_start(args, format);
-  Isolate::GetCurrent()->ThrowException(ex(NewStringFormated(format, args)));
+
+  char buffer[256];
+  vsnprintf(buffer, 256, format, args);
+  Isolate::GetCurrent()->ThrowException(ex(NewString(buffer)));
   va_end(args);
 }
 
