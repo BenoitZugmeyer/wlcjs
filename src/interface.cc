@@ -1,7 +1,6 @@
 #include "common.h"
-#include "output.h"
-#include "view.h"
 #include "types.h"
+#include "util.h"
 #include "enum_to_string.h"
 
 namespace wlcjs {
@@ -27,39 +26,28 @@ MaybeLocal<Value> CallCallback(const char* name, int argc, Local<Value> argv[]) 
   return Undefined(isolate);
 }
 
-Local<Value> GetViewOrUndefined(wlc_handle view) {
-  ISOLATE(persistent_interface);
-  if (!view) return Undefined(isolate);
-  return Output::FromWLCHandle(view)->GetInstance();
-}
-
 bool output_created(wlc_handle output) {
   // TODO return true or false
   MK_SCOPE
-  Output* output_js;
-
-  if (!Unwrap(ManagedObject<Output>::Create(isolate, output), &output_js)) {
-    return false; // TODO maybe write some kind of log?
-  }
-
-  wlc_handle_set_user_data(output, output_js);
-  Local<Value> argv[] = { output_js->GetInstance() };
+  Local<Value> argv[] = {
+    Number::New(isolate, output),
+  };
   CallCallback("outputCreated", 1, argv);
   return true;
 }
 
 void output_destroyed(wlc_handle output) {
   MK_SCOPE
-  auto output_js = Output::FromWLCHandle(output);
-  Local<Value> argv[] = { output_js->GetInstance() };
+  Local<Value> argv[] = {
+    Number::New(isolate, output),
+  };
   CallCallback("outputDestroyed", 1, argv);
-  delete output_js;
 }
 
 void output_focus(wlc_handle output, bool focus) {
   MK_SCOPE
   Local<Value> argv[] = {
-    Output::FromWLCHandle(output)->GetInstance(),
+    Number::New(isolate, output),
     Boolean::New(isolate, focus),
   };
   CallCallback("outputFocus", 2, argv);
@@ -72,10 +60,8 @@ void output_resolution(wlc_handle output, const wlc_size* from, const wlc_size* 
   if (!TryCast(from, &from_js)) return;
   if (!TryCast(to, &to_js)) return;
 
-  auto output_js = Output::FromWLCHandle(output);
-  if (!output_js) return;
   Local<Value> argv[] = {
-    output_js->GetInstance(),
+    Number::New(isolate, output),
     from_js,
     to_js,
   };
@@ -88,7 +74,7 @@ bool keyboard_key(wlc_handle view, uint32_t time, const wlc_modifiers* modifiers
   if (!TryCast(modifiers, &modifiers_js)) return true;
 
   Local<Value> argv[] = {
-    GetViewOrUndefined(view),
+    Number::New(isolate, view),
     Number::New(isolate, time),
     modifiers_js,
     Number::New(isolate, key),
@@ -103,39 +89,25 @@ bool keyboard_key(wlc_handle view, uint32_t time, const wlc_modifiers* modifiers
 bool view_created(wlc_handle view) {
   // TODO return true or false
   MK_SCOPE
-  View* view_js;
-  if (!Unwrap(View::Create(isolate, view), &view_js)) {
-    return false; // TODO maybe write some kind of log?
-  }
-  wlc_handle_set_user_data(view, view_js);
-
   Local<Value> argv[] = {
-    view_js->GetInstance(),
+    Number::New(isolate, view),
   };
-
   CallCallback("viewCreated", 1, argv);
   return true;
 }
 
 void view_destroyed(wlc_handle view) {
   MK_SCOPE
-
-  auto view_js = View::FromWLCHandle(view);
-
   Local<Value> argv[] = {
-    view_js->GetInstance(),
+    Number::New(isolate, view),
   };
-
   CallCallback("viewDestroyed", 1, argv);
-
-  delete view_js;
 }
 
 void view_focus(wlc_handle view, bool focus) {
   MK_SCOPE
-
   Local<Value> argv[] = {
-    View::FromWLCHandle(view)->GetInstance(),
+    Number::New(isolate, view),
     Boolean::New(isolate, focus),
   };
   CallCallback("viewFocus", 2, argv);
@@ -143,11 +115,10 @@ void view_focus(wlc_handle view, bool focus) {
 
 void view_move_to_output(wlc_handle view, wlc_handle from_output, wlc_handle to_output) {
   MK_SCOPE
-
   Local<Value> argv[] = {
-    View::FromWLCHandle(view)->GetInstance(),
-    Output::FromWLCHandle(from_output)->GetInstance(),
-    Output::FromWLCHandle(to_output)->GetInstance(),
+    Number::New(isolate, view),
+    Number::New(isolate, from_output),
+    Number::New(isolate, to_output),
   };
   CallCallback("viewMoveToOutput", 3, argv);
 }
@@ -163,7 +134,7 @@ bool pointer_button(wlc_handle view, uint32_t time,
   if (!TryCast(origin, &origin_js)) return true;
 
   Local<Value> argv[] = {
-    GetViewOrUndefined(view),
+    Number::New(isolate, view),
     Number::New(isolate, time),
     modifiers_js,
     Number::New(isolate, button),
@@ -190,7 +161,7 @@ bool pointer_scroll(wlc_handle view, uint32_t time,
   }
 
   Local<Value> argv[] = {
-    GetViewOrUndefined(view),
+    Number::New(isolate, view),
     Number::New(isolate, time),
     modifiers_js,
     Number::New(isolate, axis_bits),
@@ -208,7 +179,7 @@ bool pointer_motion(wlc_handle view, uint32_t time,
   if (!TryCast(origin, &origin_js)) return false;
 
   Local<Value> argv[] = {
-    GetViewOrUndefined(view),
+    Number::New(isolate, view),
     Number::New(isolate, time),
     origin_js,
   };

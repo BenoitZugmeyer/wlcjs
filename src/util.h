@@ -6,46 +6,6 @@
 
 namespace wlcjs {
 
-inline bool DefinePrototypeMethod(Isolate* isolate, Local<FunctionTemplate> tpl,
-    const char* name, FunctionCallback callback) {
-
-  Local<Function> fn;
-  MaybeLocal<Function> maybe_fn =
-    FunctionTemplate::New(
-        isolate,
-        callback,
-        Local<Value>(),
-        Signature::New(isolate, tpl)
-    )->GetFunction(isolate->GetCurrentContext());
-
-  if (!Unwrap(maybe_fn, &fn)) {
-    ThrowException(Exception::Error, "Can't set function %s", name);
-    return false;
-  }
-
-  Local<String> name_js = NewString(name);
-  tpl->PrototypeTemplate()->Set(name_js, fn);
-  fn->SetName(name_js);
-
-  return true;
-}
-
-inline bool DefinePrototypeAccessor(Isolate* isolate, Local<FunctionTemplate> tpl,
-    const char* name, AccessorGetterCallback getter, AccessorSetterCallback setter = 0) {
-
-  tpl->PrototypeTemplate()->SetAccessor(
-      NewString(name),
-      getter,
-      setter,
-      Local<Value>(),
-      AccessControl::DEFAULT,
-      PropertyAttribute::None,
-      AccessorSignature::New(isolate, tpl)
-  );
-
-  return true;
-}
-
 template <class T>
 class SimplePersistent : public Persistent<T> {
 public:
@@ -67,6 +27,13 @@ public:
 private:
   Isolate* isolate;
 };
+
+inline char* v8string_to_cstring(Local<String> str) {
+  String::Utf8Value v(str);
+  char* result = new char[v.length() + 1];
+  memcpy(result, *v, v.length() + 1);
+  return result;
+}
 
 }
 

@@ -8,6 +8,7 @@
         "src/enum_to_string.cc",
         "src/output.cc",
         "src/view.cc",
+        "src/base.cc",
       ],
       "defines": [
         # "V8_DEPRECATION_WARNINGS=1",

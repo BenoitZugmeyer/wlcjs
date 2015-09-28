@@ -1,85 +1,78 @@
-#include "view.h"
-#include "output.h"
 #include "types.h"
 
 namespace wlcjs {
+namespace View {
 
 #define UNWRAP_VIEW \
-  View* view; \
-  if (!Unwrap(View::FromLocalObject(info.This()), &view)) return;
+  wlc_handle view; \
+  if (!TryCast(info[0], &view)) THROW(TypeError, "First argument must be a view");
 
-void ViewGetTitle(Local<String> property, const PropertyCallbackInfo<Value>& info) {
+METHOD(GetTitle) {
   UNWRAP_VIEW
-  RETURN(info, NewString(wlc_view_get_title(view->GetWLCHandle())));
+  RETURN(info, NewString(wlc_view_get_title(view)));
 }
 
-void ViewFocus(const FunctionCallbackInfo<Value>& info) {
+METHOD(Focus) {
   UNWRAP_VIEW
-  wlc_view_focus(view->GetWLCHandle());
+  wlc_view_focus(view);
 }
 
-void ViewClose(const FunctionCallbackInfo<Value>& info) {
+METHOD(Close) {
   UNWRAP_VIEW
-  wlc_view_close(view->GetWLCHandle());
+  wlc_view_close(view);
 }
 
-void ViewGetOutput(Local<String> property, const PropertyCallbackInfo<Value>& info) {
+METHOD(GetOutput) {
   UNWRAP_VIEW
-  wlc_handle output = wlc_view_get_output(view->GetWLCHandle());
-  RETURN(info, Output::FromWLCHandle(output)->GetInstance());
-}
-
-void ViewSetOutput(Local<String> property, Local<Value> value, const PropertyCallbackInfo<void>& info) {
-  UNWRAP_VIEW
-  Output *output;
-  Local<Object> output_js;
-  if (!TryCast(value, &output_js)) THROW(TypeError, "view.output must be an object");
-  if (!Unwrap(Output::FromLocalObject(output_js), &output)) return;
-  wlc_view_set_output(view->GetWLCHandle(), output->GetWLCHandle());
-}
-
-void ViewSendToBack(const FunctionCallbackInfo<Value>& info) {
-  UNWRAP_VIEW
-  wlc_view_send_to_back(view->GetWLCHandle());
-}
-
-void ViewBringToFront(const FunctionCallbackInfo<Value>& info) {
-  UNWRAP_VIEW
-  wlc_view_bring_to_front(view->GetWLCHandle());
-}
-
-void ViewSetGeometry(const FunctionCallbackInfo<Value>& info) {
   ISOLATE(info);
+  RETURN(info, Number::New(isolate, wlc_view_get_output(view)));
+}
+
+METHOD(SetOutput) {
   UNWRAP_VIEW
+  wlc_handle output;
+  if (!TryCast(info[1], &output)) THROW(TypeError, "Second argument must be an output");
+  wlc_view_set_output(view, output);
+}
+
+METHOD(SendToBack) {
+  UNWRAP_VIEW
+  wlc_view_send_to_back(view);
+}
+
+METHOD(BringToFront) {
+  UNWRAP_VIEW
+  wlc_view_bring_to_front(view);
+}
+
+METHOD(SetGeometry) {
+  UNWRAP_VIEW
+
   wlc_geometry geometry;
-  Local<Object> geometry_js;
-  Local<Value> edge_js;
-
-  if (!TryCast(info[0], &geometry_js)) THROW(TypeError, "view.setGeometry argument is not an Object");
-  if (!TryCast(geometry_js, &geometry)) return;
-  if (!Unwrap(geometry_js->Get(isolate->GetCurrentContext(), NewString("edge")), &edge_js)) return;
-
   uint32_t edge;
-  if (edge_js->IsUndefined()) {
+
+  if (!TryCast(info[2], &geometry)) THROW(TypeError, "Third argument is not a valid geometry object");
+
+  if (info[1]->IsUndefined()) {
     edge = 0;
   }
-  else if (!TryCast(edge_js, &edge)) {
-    THROW(TypeError, "view.setGeometry edge option should be a Number");
+  else if (!TryCast(info[1], &edge)) {
+    THROW(TypeError, "Second argument must be a Number");
   }
 
-  wlc_view_set_geometry(view->GetWLCHandle(), edge, &geometry);
+  wlc_view_set_geometry(view, edge, &geometry);
 }
 
-void View::InitPrototype(Isolate* isolate, Local<FunctionTemplate> tpl) {
-
-  DefinePrototypeAccessor(isolate, tpl, "title", ViewGetTitle) &&
-  DefinePrototypeMethod(isolate, tpl, "close", ViewClose) &&
-  DefinePrototypeMethod(isolate, tpl, "focus", ViewFocus) &&
-  DefinePrototypeAccessor(isolate, tpl, "output", ViewGetOutput, ViewSetOutput) &&
-  DefinePrototypeMethod(isolate, tpl, "sendToBack", ViewSendToBack) &&
-  DefinePrototypeMethod(isolate, tpl, "bringToFront", ViewBringToFront) &&
-  DefinePrototypeMethod(isolate, tpl, "setGeometry", ViewSetGeometry);
-
+void Export(Local<Object> exports) {
+  NODE_SET_METHOD(exports, "getTitle", GetTitle);
+  NODE_SET_METHOD(exports, "focus", Focus);
+  NODE_SET_METHOD(exports, "close", Close);
+  NODE_SET_METHOD(exports, "getOutput", GetOutput);
+  NODE_SET_METHOD(exports, "setOutput", SetOutput);
+  NODE_SET_METHOD(exports, "sendToBack", SendToBack);
+  NODE_SET_METHOD(exports, "bringToFront", BringToFront);
+  NODE_SET_METHOD(exports, "setGeometry", SetGeometry);
 }
 
+}
 }

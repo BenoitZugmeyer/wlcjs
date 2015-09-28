@@ -79,17 +79,23 @@ inline bool Unwrap(MaybeLocal<INPUT> maybe, OUTPUT* dest) {
   return TryCast(maybe.ToLocalChecked(), dest);
 }
 
-inline bool TryCast(Local<Object> desc, wlc_geometry* geometry) {
+inline bool TryCast(Local<Value> desc, wlc_geometry* geometry) {
+  Local<Object> desc_object;
+  if (!TryCast(desc, &desc_object)) return false;
+
   auto context = Isolate::GetCurrent()->GetCurrentContext();
 
   return (
-    Unwrap(desc->Get(context, NewString("x")), &geometry->origin.x) &&
-    Unwrap(desc->Get(context, NewString("y")), &geometry->origin.y) &&
-    Unwrap(desc->Get(context, NewString("width")), &geometry->size.w) &&
-    Unwrap(desc->Get(context, NewString("height")), &geometry->size.h)
+    Unwrap(desc_object->Get(context, NewString("x")), &geometry->origin.x) &&
+    Unwrap(desc_object->Get(context, NewString("y")), &geometry->origin.y) &&
+    Unwrap(desc_object->Get(context, NewString("width")), &geometry->size.w) &&
+    Unwrap(desc_object->Get(context, NewString("height")), &geometry->size.h)
   );
 }
 
+inline bool TryCast(Local<Value> value, wlc_handle* dest) {
+  return TryCast(value, reinterpret_cast<uint32_t*>(dest)) && *dest != 0;
+}
 
 inline bool TryCast(const wlc_size* size, Local<Object>* output) {
   if (!size) return false;
