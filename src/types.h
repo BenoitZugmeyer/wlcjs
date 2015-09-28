@@ -1,7 +1,7 @@
-#ifndef _TYPES_H
-#define _TYPES_H
+#ifndef _WLCJS_TYPES_H
+#define _WLCJS_TYPES_H
 
-#include "wlcjs.h"
+#include "common.h"
 
 namespace wlcjs {
 

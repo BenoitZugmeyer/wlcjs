@@ -3,6 +3,8 @@
 #include "output.h"
 #include "view.h"
 #include "types.h"
+#include "interface.h"
+#include "enum_to_string.h"
 
 namespace wlcjs {
 

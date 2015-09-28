@@ -1,5 +1,6 @@
 #include "view.h"
 #include "output.h"
+#include "types.h"
 
 namespace wlcjs {
 

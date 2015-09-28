@@ -1,6 +1,8 @@
-#include "wlcjs.h"
+#include "common.h"
 #include "output.h"
 #include "view.h"
+#include "types.h"
+#include "enum_to_string.h"
 
 namespace wlcjs {
 
