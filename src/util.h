@@ -2,34 +2,49 @@
 #define _WLCJS_UTIL_H
 
 #include "common.h"
+#include "types.h"
 
 namespace wlcjs {
 
-#define DEFINE_METHOD(TPL, NAME, FN) do {\
-  Local<Function> fn;\
-  MaybeLocal<Function> maybe_fn =\
-    FunctionTemplate::New(\
-      isolate,\
-      FN,\
-      Local<Value>(),\
-      Signature::New(isolate, TPL)\
-    )->GetFunction(isolate->GetCurrentContext());\
-  if (!Unwrap(maybe_fn, &fn)) THROW(Error, "Can't set function " NAME);\
-  TPL->PrototypeTemplate()->Set(NewString(NAME), fn);\
-  fn->SetName(NewString(NAME));\
-} while(0);
+inline bool DefinePrototypeMethod(Isolate* isolate, Local<FunctionTemplate> tpl,
+    const char* name, FunctionCallback callback) {
 
-#define DEFINE_ACCESSOR(TPL, NAME, GETTER, SETTER) \
-  TPL->PrototypeTemplate()->SetAccessor(\
-      NewString(NAME),\
-      GETTER,\
-      SETTER,\
-      Local<Value>(),\
-      AccessControl::DEFAULT,\
-      PropertyAttribute::None,\
-      AccessorSignature::New(isolate, TPL));
+  Local<Function> fn;
+  MaybeLocal<Function> maybe_fn =
+    FunctionTemplate::New(
+        isolate,
+        callback,
+        Local<Value>(),
+        Signature::New(isolate, tpl)
+    )->GetFunction(isolate->GetCurrentContext());
 
-#define DEFINE_GETTER(PROTO, NAME, GETTER) DEFINE_ACCESSOR(PROTO, NAME, GETTER, 0)
+  if (!Unwrap(maybe_fn, &fn)) {
+    ThrowException(Exception::Error, "Can't set function %s", name);
+    return false;
+  }
+
+  Local<String> name_js = NewString(name);
+  tpl->PrototypeTemplate()->Set(name_js, fn);
+  fn->SetName(name_js);
+
+  return true;
+}
+
+inline bool DefinePrototypeAccessor(Isolate* isolate, Local<FunctionTemplate> tpl,
+    const char* name, AccessorGetterCallback getter, AccessorSetterCallback setter = 0) {
+
+  tpl->PrototypeTemplate()->SetAccessor(
+      NewString(name),
+      getter,
+      setter,
+      Local<Value>(),
+      AccessControl::DEFAULT,
+      PropertyAttribute::None,
+      AccessorSignature::New(isolate, tpl)
+  );
+
+  return true;
+}
 
 template <class T>
 class SimplePersistent : public Persistent<T> {

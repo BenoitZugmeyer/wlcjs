@@ -43,9 +43,9 @@ void OutputGetResolution(Local<String> property, const PropertyCallbackInfo<Valu
 }
 
 void Output::InitPrototype(Isolate* isolate, Local<FunctionTemplate> tpl) {
-  DEFINE_GETTER(tpl, "name", OutputGetName);
-  DEFINE_GETTER(tpl, "views", OutputGetViews);
-  DEFINE_GETTER(tpl, "resolution", OutputGetResolution);
+  DefinePrototypeAccessor(isolate, tpl, "name", OutputGetName) &&
+  DefinePrototypeAccessor(isolate, tpl, "views", OutputGetViews) &&
+  DefinePrototypeAccessor(isolate, tpl, "resolution", OutputGetResolution);
 }
 
 }

@@ -71,13 +71,15 @@ void ViewSetGeometry(const FunctionCallbackInfo<Value>& info) {
 }
 
 void View::InitPrototype(Isolate* isolate, Local<FunctionTemplate> tpl) {
-  DEFINE_GETTER(tpl, "title", ViewGetTitle);
-  DEFINE_METHOD(tpl, "close", ViewClose);
-  DEFINE_METHOD(tpl, "focus", ViewFocus);
-  DEFINE_ACCESSOR(tpl, "output", ViewGetOutput, ViewSetOutput);
-  DEFINE_METHOD(tpl, "sendToBack", ViewSendToBack);
-  DEFINE_METHOD(tpl, "bringToFront", ViewBringToFront);
-  DEFINE_METHOD(tpl, "setGeometry", ViewSetGeometry);
+
+  DefinePrototypeAccessor(isolate, tpl, "title", ViewGetTitle) &&
+  DefinePrototypeMethod(isolate, tpl, "close", ViewClose) &&
+  DefinePrototypeMethod(isolate, tpl, "focus", ViewFocus) &&
+  DefinePrototypeAccessor(isolate, tpl, "output", ViewGetOutput, ViewSetOutput) &&
+  DefinePrototypeMethod(isolate, tpl, "sendToBack", ViewSendToBack) &&
+  DefinePrototypeMethod(isolate, tpl, "bringToFront", ViewBringToFront) &&
+  DefinePrototypeMethod(isolate, tpl, "setGeometry", ViewSetGeometry);
+
 }
 
 }

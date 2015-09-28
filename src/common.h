@@ -40,6 +40,9 @@ using v8::Just;
 using v8::NewStringType;
 using v8::Context;
 using v8::TryCatch;
+using v8::FunctionCallback;
+using v8::AccessorGetterCallback;
+using v8::AccessorSetterCallback;
 
 #define ISOLATE(V) Isolate* isolate = (V).GetIsolate();
 
