@@ -136,18 +136,13 @@ METHOD(GetBackendType) {
 }
 
 METHOD(GetOutputs) {
-  ISOLATE(info)
   if (state & ~STATE_INITIALIZED) THROW(Error, "'init' has to be called before calling 'getOutputs'");
-  size_t memb;
-  const wlc_handle* outputs = wlc_get_outputs(&memb);
-  Local<Array> result = Array::New(isolate, memb);
-  Local<Context> context = isolate->GetCurrentContext();
 
-  for (size_t i = 0; i < memb; i += 1) {
-    if (result->Set(context, i, Number::New(isolate, outputs[i])).IsNothing()) {
-      return;
-    }
-  }
+  size_t memb;
+  Local<Array> result;
+
+  const wlc_handle* outputs = wlc_get_outputs(&memb);
+  if (!TryCast(outputs, memb, &result)) return;
 
   RETURN(result);
 }

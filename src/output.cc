@@ -13,19 +13,13 @@ METHOD(GetName) {
 }
 
 METHOD(GetViews) {
-  ISOLATE(info);
   UNWRAP_OUTPUT
 
   size_t memb;
-  const wlc_handle* views = wlc_output_get_views(output, &memb);
-  Local<Array> result = Array::New(isolate, memb);
-  Local<Context> context = isolate->GetCurrentContext();
+  Local<Array> result;
 
-  for (size_t i = 0; i < memb; i += 1) {
-    if (result->Set(context, i, Number::New(isolate, views[i])).IsNothing()) {
-      return;
-    }
-  }
+  const wlc_handle* views = wlc_output_get_views(output, &memb);
+  if (!TryCast(views, memb, &result)) return;
 
   RETURN(result);
 }

@@ -94,7 +94,16 @@ inline bool TryCast(Local<Value> desc, wlc_geometry* geometry) {
 }
 
 inline bool TryCast(Local<Value> value, wlc_handle* dest) {
-  return TryCast(value, reinterpret_cast<uint32_t*>(dest)) && *dest != 0;
+  uint32_t dest_small;
+  if (!TryCast(value, &dest_small) || !dest_small) return false;
+  *dest = dest_small;
+  return true;
+}
+
+inline bool TryCast(wlc_handle value, Local<Value>* dest) {
+  auto isolate = Isolate::GetCurrent();
+  *dest = Number::New(isolate, value);
+  return true;
 }
 
 inline bool TryCast(const wlc_size* size, Local<Object>* output) {
@@ -134,6 +143,22 @@ inline bool TryCast(const wlc_origin* origin, Local<Object>* output) {
     (*output)->Set(context, NewString("x"), Integer::New(isolate, origin->x)).IsJust() &&
     (*output)->Set(context, NewString("y"), Integer::New(isolate, origin->y)).IsJust()
   );
+}
+
+template <class T>
+inline bool TryCast(const T* arr, size_t memb, Local<Array>* output) {
+  auto isolate = Isolate::GetCurrent();
+  auto context = isolate->GetCurrentContext();
+
+  *output = Array::New(isolate, memb);
+
+  Local<Value> value;
+  for (size_t i = 0; i < memb; i += 1) {
+    if (!TryCast(arr[i], &value)) return false;
+    if ((*output)->Set(context, i, value).IsNothing()) return false;
+  }
+
+  return true;
 }
 
 }
