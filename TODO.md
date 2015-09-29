@@ -18,7 +18,7 @@ Output
 ------
 
 - [x] `wlc_get_outputs(size_t *out_memb) -> const wlc_handle*`
-- [ ] `wlc_get_focused_output(void) -> wlc_handle`
+- [x] `wlc_get_focused_output(void) -> wlc_handle`
 - [x] `wlc_output_get_name(wlc_handle output) -> const char*`
 - [ ] `wlc_output_get_connector_type(wlc_handle output) -> enum wlc_connector_type`
 - [ ] `wlc_output_get_connector_id(wlc_handle output) -> uint32_t`

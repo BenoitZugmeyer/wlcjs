@@ -152,6 +152,11 @@ METHOD(GetOutputs) {
   RETURN(result);
 }
 
+METHOD(GetFocusedOutput) {
+  ISOLATE(info)
+  RETURN(Number::New(isolate, wlc_get_focused_output()));
+}
+
 METHOD(Exec) {
   Local<String> bin_js;
   if (!TryCast(info[0], &bin_js)) {
@@ -188,6 +193,7 @@ void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getKeysymNameForKey", GetKeysymNameForKey);
   NODE_SET_METHOD(exports, "getBackendType", GetBackendType);
   NODE_SET_METHOD(exports, "getOutputs", GetOutputs);
+  NODE_SET_METHOD(exports, "getFocusedOutput", GetFocusedOutput);
   NODE_SET_METHOD(exports, "exec", Exec);
 }
 
