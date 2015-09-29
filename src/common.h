@@ -51,8 +51,8 @@ using v8::AccessorSetterCallback;
   return;\
 } while(0)
 
-#define RETURN(A, V) \
-  (A).GetReturnValue().Set(V);\
+#define RETURN(V) \
+  info.GetReturnValue().Set(V);\
   return;
 
 #define METHOD(N) void N(const FunctionCallbackInfo<Value>& info)

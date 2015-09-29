@@ -113,7 +113,7 @@ METHOD(GetKeysymForKey) {
 
   uint32_t keysym = wlc_keyboard_get_keysym_for_key(key, NULL);
 
-  RETURN(info, Integer::NewFromUnsigned(isolate, keysym));
+  RETURN(Integer::NewFromUnsigned(isolate, keysym));
 }
 
 METHOD(GetKeysymNameForKey) {
@@ -127,12 +127,12 @@ METHOD(GetKeysymNameForKey) {
   char buffer[100];
   if (xkb_keysym_get_name(keysym, buffer, 100) < 0) THROW(Error, "Invalid keysym");
 
-  RETURN(info, NewString(buffer));
+  RETURN(NewString(buffer));
 }
 
 METHOD(GetBackendType) {
   if (~state & STATE_INITIALIZED) THROW(Error, "'init' has to be called before calling 'getBackendType'");
-  RETURN(info, NewString(enum_to_string(wlc_get_backend_type())));
+  RETURN(NewString(enum_to_string(wlc_get_backend_type())));
 }
 
 METHOD(GetOutputs) {
@@ -149,7 +149,7 @@ METHOD(GetOutputs) {
     }
   }
 
-  RETURN(info, result);
+  RETURN(result);
 }
 
 METHOD(Exec) {

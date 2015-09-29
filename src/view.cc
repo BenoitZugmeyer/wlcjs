@@ -9,7 +9,7 @@ namespace View {
 
 METHOD(GetTitle) {
   UNWRAP_VIEW
-  RETURN(info, NewString(wlc_view_get_title(view)));
+  RETURN(NewString(wlc_view_get_title(view)));
 }
 
 METHOD(Focus) {
@@ -25,7 +25,7 @@ METHOD(Close) {
 METHOD(GetOutput) {
   UNWRAP_VIEW
   ISOLATE(info);
-  RETURN(info, Number::New(isolate, wlc_view_get_output(view)));
+  RETURN(Number::New(isolate, wlc_view_get_output(view)));
 }
 
 METHOD(SetOutput) {

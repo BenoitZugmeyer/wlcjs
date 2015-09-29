@@ -9,7 +9,7 @@ namespace Output {
 
 METHOD(GetName) {
   UNWRAP_OUTPUT
-  RETURN(info, NewString(wlc_output_get_name(output)));
+  RETURN(NewString(wlc_output_get_name(output)));
 }
 
 METHOD(GetViews) {
@@ -27,7 +27,7 @@ METHOD(GetViews) {
     }
   }
 
-  RETURN(info, result);
+  RETURN(result);
 }
 
 METHOD(GetResolution) {
@@ -39,7 +39,7 @@ METHOD(GetResolution) {
   Local<Object> resolution_js;
   if (!TryCast(resolution, &resolution_js)) return;
 
-  RETURN(info, resolution_js);
+  RETURN(resolution_js);
 }
 
 void Export(Local<Object> exports) {
