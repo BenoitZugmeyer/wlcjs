@@ -178,6 +178,15 @@ METHOD(Exec) {
   delete bin;
 }
 
+METHOD(GetCurrentKeys) {
+  size_t memb;
+  Local<Array> result;
+
+  const uint32_t* keys = wlc_keyboard_get_current_keys(&memb);
+  if (!TryCast(keys, memb, &result)) return;
+
+  RETURN(result);
+}
 
 void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "init", Init);
@@ -190,6 +199,7 @@ void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getOutputs", GetOutputs);
   NODE_SET_METHOD(exports, "getFocusedOutput", GetFocusedOutput);
   NODE_SET_METHOD(exports, "exec", Exec);
+  NODE_SET_METHOD(exports, "getCurrentKeys", GetCurrentKeys);
 }
 
 }
