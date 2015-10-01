@@ -44,6 +44,7 @@ inline bool IsType<Value>(Local<Value>&) {
 }
 
 _DEFINE(Object)
+_DEFINE(Boolean)
 _DEFINE(Array)
 _DEFINE(String)
 _DEFINE(Number)
@@ -71,6 +72,11 @@ inline bool TryCast(Local<Value> value, uint32_t* dest) {
 inline bool TryCast(Local<Value> value, int32_t* dest) {
   if (!IsType<Number>(value)) return false;
   return Unwrap(value->Int32Value(Isolate::GetCurrent()->GetCurrentContext()), dest);
+}
+
+inline bool TryCast(Local<Value> value, bool* dest) {
+  if (!IsType<Boolean>(value)) return false;
+  return Unwrap(value->BooleanValue(Isolate::GetCurrent()->GetCurrentContext()), dest);
 }
 
 template <class INPUT, class OUTPUT>

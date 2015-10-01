@@ -63,6 +63,21 @@ METHOD(SetGeometry) {
   wlc_view_set_geometry(view, edge, &geometry);
 }
 
+METHOD(SetState) {
+  UNWRAP_VIEW
+  uint32_t state;
+  bool value;
+  if (!TryCast(info[1], &state)) THROW(TypeError, "Second argument is not a Number");
+  if (!TryCast(info[2], &value)) THROW(TypeError, "Third argument is not a Boolean");
+  wlc_view_set_state(view, static_cast<wlc_view_state_bit>(state), value);
+}
+
+METHOD(GetState) {
+  UNWRAP_VIEW
+  ISOLATE(info);
+  RETURN(Number::New(isolate, wlc_view_get_state(view)));
+}
+
 void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getTitle", GetTitle);
   NODE_SET_METHOD(exports, "focus", Focus);
@@ -72,6 +87,8 @@ void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "sendToBack", SendToBack);
   NODE_SET_METHOD(exports, "bringToFront", BringToFront);
   NODE_SET_METHOD(exports, "setGeometry", SetGeometry);
+  NODE_SET_METHOD(exports, "getState", GetState);
+  NODE_SET_METHOD(exports, "setState", SetState);
 }
 
 }

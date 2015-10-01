@@ -51,8 +51,8 @@ View
 - [x] `wlc_view_set_geometry(wlc_handle view, uint32_t edges, const struct wlc_geometry *geometry) -> void`
 - [ ] `wlc_view_get_type(wlc_handle view) -> uint32_t`
 - [ ] `wlc_view_set_type(wlc_handle view, enum wlc_view_type_bit type, bool toggle) -> void`
-- [ ] `wlc_view_get_state(wlc_handle view) -> uint32_t`
-- [ ] `wlc_view_set_state(wlc_handle view, enum wlc_view_state_bit state, bool toggle) -> void`
+- [x] `wlc_view_get_state(wlc_handle view) -> uint32_t`
+- [x] `wlc_view_set_state(wlc_handle view, enum wlc_view_state_bit state, bool toggle) -> void`
 - [ ] `wlc_view_get_parent(wlc_handle view) -> wlc_handle`
 - [ ] `wlc_view_set_parent(wlc_handle view, wlc_handle parent) -> void`
 - [x] `wlc_view_get_title(wlc_handle view) -> const char*`
