@@ -5,7 +5,6 @@
       "sources": [
         "src/wlcjs.cc",
         "src/interface.cc",
-        "src/enum_to_string.cc",
         "src/output.cc",
         "src/view.cc",
         "src/base.cc",

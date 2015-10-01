@@ -1,7 +1,6 @@
 #include "common.h"
 #include "types.h"
 #include "util.h"
-#include "enum_to_string.h"
 
 namespace wlcjs {
 
@@ -78,7 +77,7 @@ bool keyboard_key(wlc_handle view, uint32_t time, const wlc_modifiers* modifiers
     Number::New(isolate, time),
     modifiers_js,
     Number::New(isolate, key),
-    NewString(enum_to_string(key_state)),
+    Number::New(isolate, key_state),
   };
 
   // TODO return true or false
@@ -138,7 +137,7 @@ bool pointer_button(wlc_handle view, uint32_t time,
     Number::New(isolate, time),
     modifiers_js,
     Number::New(isolate, button),
-    NewString(enum_to_string(state)),
+    Number::New(isolate, state),
     origin_js,
   };
   CallCallback("pointerButton", 6, argv);

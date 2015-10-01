@@ -1,7 +1,6 @@
 #include <xkbcommon/xkbcommon.h>
 #include "types.h"
 #include "util.h"
-#include "enum_to_string.h"
 #include "interface.h"
 
 namespace wlcjs {
@@ -29,7 +28,7 @@ void log_handler(enum wlc_log_type type, const char *str) {
   HandleScope scope(isolate);
   Local<Function> log_handler = persistent_log_handler.Unwrap();
   Local<Value> arguments[] = {
-    NewString(enum_to_string(type)),
+    Number::New(isolate, type),
     NewString(str),
   };
   log_handler->Call(isolate->GetCurrentContext(), Null(isolate), 2, arguments);
@@ -131,8 +130,9 @@ METHOD(GetKeysymNameForKey) {
 }
 
 METHOD(GetBackendType) {
+  ISOLATE(info)
   if (~state & STATE_INITIALIZED) THROW(Error, "'init' has to be called before calling 'getBackendType'");
-  RETURN(NewString(enum_to_string(wlc_get_backend_type())));
+  RETURN(Number::New(isolate, wlc_get_backend_type()));
 }
 
 METHOD(GetOutputs) {
