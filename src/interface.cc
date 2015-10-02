@@ -10,29 +10,36 @@ SimplePersistent<Object> persistent_interface;
   ISOLATE(persistent_interface); \
   HandleScope scope(isolate);
 
-MaybeLocal<Value> CallCallback(const char* name, int argc, Local<Value> argv[]) {
+MaybeLocal<Value> CallMeMaybe(const char* name, int argc, Local<Value> argv[]) {
   ISOLATE(persistent_interface);
   Local<Object> interface = persistent_interface.Unwrap();
-  Local<Value> v;
+  Local<Function> v;
 
   if (!Unwrap(interface->Get(isolate->GetCurrentContext(), NewString(name)), &v)) {
     return MaybeLocal<Value>();
   }
 
-  if (v->IsFunction()) {
-    return v.As<Function>()->Call(isolate->GetCurrentContext(), Null(isolate), argc, argv);
-  }
-  return Undefined(isolate);
+  return v.As<Function>()->Call(isolate->GetCurrentContext(), Null(isolate), argc, argv);
 }
 
+template <class T>
+T CallCallback(const char* name, T default_, int argc, Local<Value> argv[]) {
+  T result;
+  if (!Unwrap(CallMeMaybe(name, argc, argv), &result)) return default_;
+  return result;
+}
+
+void CallCallback(const char* name, int argc, Local<Value> argv[]) {
+  CallMeMaybe(name, argc, argv);
+}
+
+
 bool output_created(wlc_handle output) {
-  // TODO return true or false
   MK_SCOPE
   Local<Value> argv[] = {
     Number::New(isolate, output),
   };
-  CallCallback("outputCreated", 1, argv);
-  return true;
+  return CallCallback("outputCreated", true, 1, argv);
 }
 
 void output_destroyed(wlc_handle output) {
@@ -70,7 +77,7 @@ void output_resolution(wlc_handle output, const wlc_size* from, const wlc_size* 
 bool keyboard_key(wlc_handle view, uint32_t time, const wlc_modifiers* modifiers, uint32_t key, wlc_key_state key_state) {
   MK_SCOPE
   Local<Object> modifiers_js;
-  if (!TryCast(modifiers, &modifiers_js)) return true;
+  if (!TryCast(modifiers, &modifiers_js)) return false;
 
   Local<Value> argv[] = {
     Number::New(isolate, view),
@@ -79,20 +86,15 @@ bool keyboard_key(wlc_handle view, uint32_t time, const wlc_modifiers* modifiers
     Number::New(isolate, key),
     Number::New(isolate, key_state),
   };
-
-  // TODO return true or false
-  CallCallback("keyboardKey", 5, argv);
-  return true;
+  return CallCallback("keyboardKey", false, 5, argv);
 }
 
 bool view_created(wlc_handle view) {
-  // TODO return true or false
   MK_SCOPE
   Local<Value> argv[] = {
     Number::New(isolate, view),
   };
-  CallCallback("viewCreated", 1, argv);
-  return true;
+  return CallCallback("viewCreated", true, 1, argv);
 }
 
 void view_destroyed(wlc_handle view) {
@@ -129,8 +131,8 @@ bool pointer_button(wlc_handle view, uint32_t time,
   MK_SCOPE
   Local<Object> modifiers_js;
   Local<Object> origin_js;
-  if (!TryCast(modifiers, &modifiers_js)) return true;
-  if (!TryCast(origin, &origin_js)) return true;
+  if (!TryCast(modifiers, &modifiers_js)) return false;
+  if (!TryCast(origin, &origin_js)) return false;
 
   Local<Value> argv[] = {
     Number::New(isolate, view),
@@ -140,8 +142,7 @@ bool pointer_button(wlc_handle view, uint32_t time,
     Number::New(isolate, state),
     origin_js,
   };
-  CallCallback("pointerButton", 6, argv);
-  return true; // TODO return true or false
+  return CallCallback("pointerButton", false, 6, argv);
 }
 
 bool pointer_scroll(wlc_handle view, uint32_t time,
@@ -151,12 +152,12 @@ bool pointer_scroll(wlc_handle view, uint32_t time,
   MK_SCOPE
   auto context = isolate->GetCurrentContext();
   Local<Object> modifiers_js;
-  if (!TryCast(modifiers, &modifiers_js)) return true;
+  if (!TryCast(modifiers, &modifiers_js)) return false;
 
   Local<Array> amount_js = Array::New(isolate, 2);
   if (amount_js->Set(context, 0, Number::New(isolate, amount[0])).IsNothing() ||
       amount_js->Set(context, 1, Number::New(isolate, amount[1])).IsNothing()) {
-    return true;
+    return false;
   }
 
   Local<Value> argv[] = {
@@ -166,8 +167,7 @@ bool pointer_scroll(wlc_handle view, uint32_t time,
     Number::New(isolate, axis_bits),
     amount_js,
   };
-  CallCallback("pointerScroll", 5, argv);
-  return true;
+  return CallCallback("pointerScroll", false, 5, argv);
 }
 
 bool pointer_motion(wlc_handle view, uint32_t time,
@@ -182,8 +182,7 @@ bool pointer_motion(wlc_handle view, uint32_t time,
     Number::New(isolate, time),
     origin_js,
   };
-  CallCallback("pointerMotion", 3, argv);
-  return false;
+  return CallCallback("pointerMotion", false, 3, argv);
 }
 
 wlc_interface global_interface = {
