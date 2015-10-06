@@ -43,7 +43,7 @@ View
 - [x] `wlc_view_set_output(wlc_handle view, wlc_handle output) -> void`
 - [x] `wlc_view_send_to_back(wlc_handle view) -> void`
 - [x] `wlc_view_send_below(wlc_handle view, wlc_handle other) -> void`
-- [ ] `wlc_view_bring_above(wlc_handle view, wlc_handle other) -> void`
+- [x] `wlc_view_bring_above(wlc_handle view, wlc_handle other) -> void`
 - [x] `wlc_view_bring_to_front(wlc_handle view) -> void`
 - [ ] `wlc_view_get_mask(wlc_handle view) -> uint32_t`
 - [ ] `wlc_view_set_mask(wlc_handle view, uint32_t mask) -> void`

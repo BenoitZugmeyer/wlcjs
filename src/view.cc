@@ -47,6 +47,13 @@ METHOD(SendBelow) {
   wlc_view_send_below(view, other);
 }
 
+METHOD(BringAbove) {
+  UNWRAP_VIEW
+  wlc_handle other;
+  if (!TryCast(info[1], &other)) THROW(TypeError, "Second argument must be a view");
+  wlc_view_bring_above(view, other);
+}
+
 METHOD(BringToFront) {
   UNWRAP_VIEW
   wlc_view_bring_to_front(view);
@@ -94,6 +101,7 @@ void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "sendToBack", SendToBack);
   NODE_SET_METHOD(exports, "sendBelow", SendBelow);
   NODE_SET_METHOD(exports, "bringToFront", BringToFront);
+  NODE_SET_METHOD(exports, "bringAbove", BringAbove);
   NODE_SET_METHOD(exports, "setGeometry", SetGeometry);
   NODE_SET_METHOD(exports, "getState", GetState);
   NODE_SET_METHOD(exports, "setState", SetState);
