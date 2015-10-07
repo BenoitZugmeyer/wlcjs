@@ -47,7 +47,7 @@ View
 - [x] `wlc_view_bring_to_front(wlc_handle view) -> void`
 - [ ] `wlc_view_get_mask(wlc_handle view) -> uint32_t`
 - [ ] `wlc_view_set_mask(wlc_handle view, uint32_t mask) -> void`
-- [ ] `wlc_view_get_geometry(wlc_handle view) -> const struct wlc_geometry*`
+- [x] `wlc_view_get_geometry(wlc_handle view) -> const struct wlc_geometry*`
 - [x] `wlc_view_set_geometry(wlc_handle view, uint32_t edges, const struct wlc_geometry *geometry) -> void`
 - [ ] `wlc_view_get_type(wlc_handle view) -> uint32_t`
 - [ ] `wlc_view_set_type(wlc_handle view, enum wlc_view_type_bit type, bool toggle) -> void`

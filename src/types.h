@@ -99,6 +99,19 @@ inline bool TryCast(Local<Value> desc, wlc_geometry* geometry) {
   );
 }
 
+inline bool TryCast(const wlc_geometry* geometry, Local<Object>* output) {
+  auto isolate = Isolate::GetCurrent();
+  auto context = isolate->GetCurrentContext();
+
+  *output = Object::New(isolate);
+  return (
+    (*output)->Set(context, NewString("x"), Integer::New(isolate, geometry->origin.x)).IsJust() &&
+    (*output)->Set(context, NewString("y"), Integer::New(isolate, geometry->origin.y)).IsJust() &&
+    (*output)->Set(context, NewString("width"), Integer::New(isolate, geometry->size.w)).IsJust() &&
+    (*output)->Set(context, NewString("height"), Integer::New(isolate, geometry->size.h)).IsJust()
+  );
+}
+
 inline bool TryCast(Local<Value> value, wlc_handle* dest) {
   uint32_t dest_small;
   if (!TryCast(value, &dest_small) || !dest_small) return false;

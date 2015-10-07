@@ -77,6 +77,18 @@ METHOD(SetGeometry) {
   wlc_view_set_geometry(view, edge, &geometry);
 }
 
+METHOD(GetGeometry) {
+  UNWRAP_VIEW
+
+  const wlc_geometry* geometry = wlc_view_get_geometry(view);
+  if (!geometry) return;
+
+  Local<Object> result;
+  if (!TryCast(geometry, &result)) return;
+
+  RETURN(result);
+}
+
 METHOD(SetState) {
   UNWRAP_VIEW
   uint32_t state;
@@ -103,6 +115,7 @@ void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "bringToFront", BringToFront);
   NODE_SET_METHOD(exports, "bringAbove", BringAbove);
   NODE_SET_METHOD(exports, "setGeometry", SetGeometry);
+  NODE_SET_METHOD(exports, "getGeometry", GetGeometry);
   NODE_SET_METHOD(exports, "getState", GetState);
   NODE_SET_METHOD(exports, "setState", SetState);
 }
