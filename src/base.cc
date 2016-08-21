@@ -1,7 +1,7 @@
 #include <xkbcommon/xkbcommon.h>
 #include "types.h"
+#include "callbacks.h"
 #include "util.h"
-#include "interface.h"
 
 namespace wlcjs {
 
@@ -35,39 +35,13 @@ void log_handler(enum wlc_log_type type, const char *str) {
 }
 
 METHOD(Init) {
-  ISOLATE(info);
   if (~state & STATE_UNINITIALIZED) THROW(Error, "Can't call init twice");
-
-  Local<Context> context = isolate->GetCurrentContext();
-  Local<Object> interface;
-  Local<Object> process;
-  Local<Array> argv_js;
-
-  if (!TryCast(info[0], &interface)) {
-    THROW(TypeError, "wlc.init argument must be an Object");
-  }
-
-  if (!Unwrap(context->Global()->Get(context, NewString("process")), &process)) {
-    THROW(Error, "global.process must be an Object");
-  }
-
-  if (!Unwrap(process->Get(context, NewString("argv")), &argv_js)) {
-    THROW(TypeError, "global.process.argv must be an Array");
-  }
-
-  Local<String> str;
-  int argc = argv_js->Length();
-  char *argv[argc];
-  for (int i = 0; i < argc; i += 1) {
-    if (!Unwrap(argv_js->Get(context, i), &str)) {
-      THROW(TypeError, "global.process.argv[%d] must be a String", i);
-    }
-    argv[i] = v8string_to_cstring(str);
-  }
 
   wlc_log_set_handler(log_handler);
 
-  if (!wlc_init(get_wlc_interface(isolate, interface), argc, argv)) {
+  Callbacks::init();
+
+  if (!wlc_init()) {
     THROW(Error, "Failed to initialize wlc");
   }
   state = STATE_INITIALIZED;

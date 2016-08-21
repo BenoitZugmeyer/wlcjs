@@ -180,6 +180,14 @@ inline bool TryCast(const T* arr, size_t memb, Local<Array>* output) {
   return true;
 }
 
+template <class T>
+inline T UnwrapOr(MaybeLocal<Value> value, T default_) {
+  T result;
+  if (Unwrap(value, &result)) return result;
+  return default_;
+}
+
+
 }
 
 #endif

@@ -4,7 +4,7 @@
       "target_name": "wlc",
       "sources": [
         "src/wlcjs.cc",
-        "src/interface.cc",
+        "src/callbacks.cc",
         "src/output.cc",
         "src/view.cc",
         "src/base.cc",

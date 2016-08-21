@@ -22,18 +22,18 @@ Data structures
 Callbacks API
 -------------
 
-- [ ] `void wlc_set_output_created_cb(bool (*cb)(wlc_handle output))`
-- [ ] `void wlc_set_output_destroyed_cb(void (*cb)(wlc_handle output))`
-- [ ] `void wlc_set_output_focus_cb(void (*cb)(wlc_handle output, bool focus))`
-- [ ] `void wlc_set_output_resolution_cb(void (*cb)(wlc_handle output, const struct wlc_size *from, const struct wlc_size *to))`
+- [x] `void wlc_set_output_created_cb(bool (*cb)(wlc_handle output))`
+- [x] `void wlc_set_output_destroyed_cb(void (*cb)(wlc_handle output))`
+- [x] `void wlc_set_output_focus_cb(void (*cb)(wlc_handle output, bool focus))`
+- [x] `void wlc_set_output_resolution_cb(void (*cb)(wlc_handle output, const struct wlc_size *from, const struct wlc_size *to))`
 - [ ] `void wlc_set_output_render_pre_cb(void (*cb)(wlc_handle output))`
 - [ ] `void wlc_set_output_render_post_cb(void (*cb)(wlc_handle output))`
 - [ ] `void wlc_set_output_context_created_cb(void (*cb)(wlc_handle output))`
 - [ ] `void wlc_set_output_context_destroyed_cb(void (*cb)(wlc_handle output))`
-- [ ] `void wlc_set_view_created_cb(bool (*cb)(wlc_handle view))`
-- [ ] `void wlc_set_view_destroyed_cb(void (*cb)(wlc_handle view))`
-- [ ] `void wlc_set_view_focus_cb(void (*cb)(wlc_handle view, bool focus))`
-- [ ] `void wlc_set_view_move_to_output_cb(void (*cb)(wlc_handle view, wlc_handle from_output, wlc_handle to_output))`
+- [x] `void wlc_set_view_created_cb(bool (*cb)(wlc_handle view))`
+- [x] `void wlc_set_view_destroyed_cb(void (*cb)(wlc_handle view))`
+- [x] `void wlc_set_view_focus_cb(void (*cb)(wlc_handle view, bool focus))`
+- [x] `void wlc_set_view_move_to_output_cb(void (*cb)(wlc_handle view, wlc_handle from_output, wlc_handle to_output))`
 - [ ] `void wlc_set_view_request_geometry_cb(void (*cb)(wlc_handle view, const struct wlc_geometry*))`
 - [ ] `void wlc_set_view_request_state_cb(void (*cb)(wlc_handle view, enum wlc_view_state_bit, bool toggle))`
 - [ ] `void wlc_set_view_request_move_cb(void (*cb)(wlc_handle view, const struct wlc_point*))`
@@ -41,10 +41,10 @@ Callbacks API
 - [ ] `void wlc_set_view_render_pre_cb(void (*cb)(wlc_handle view))`
 - [ ] `void wlc_set_view_render_post_cb(void (*cb)(wlc_handle view))`
 - [ ] `void wlc_set_view_properties_updated_cb(void (*cb)(wlc_handle view, uint32_t mask))`
-- [ ] `void wlc_set_keyboard_key_cb(bool (*cb)(wlc_handle view, uint32_t time, const struct wlc_modifiers*, uint32_t key, enum wlc_key_state))`
-- [ ] `void wlc_set_pointer_button_cb(bool (*cb)(wlc_handle view, uint32_t time, const struct wlc_modifiers*, uint32_t button, enum wlc_button_state, const struct wlc_point*))`
-- [ ] `void wlc_set_pointer_scroll_cb(bool (*cb)(wlc_handle view, uint32_t time, const struct wlc_modifiers*, uint8_t axis_bits, double amount[2]))`
-- [ ] `void wlc_set_pointer_motion_cb(bool (*cb)(wlc_handle view, uint32_t time, const struct wlc_point*))`
+- [x] `void wlc_set_keyboard_key_cb(bool (*cb)(wlc_handle view, uint32_t time, const struct wlc_modifiers*, uint32_t key, enum wlc_key_state))`
+- [x] `void wlc_set_pointer_button_cb(bool (*cb)(wlc_handle view, uint32_t time, const struct wlc_modifiers*, uint32_t button, enum wlc_button_state, const struct wlc_point*))`
+- [x] `void wlc_set_pointer_scroll_cb(bool (*cb)(wlc_handle view, uint32_t time, const struct wlc_modifiers*, uint8_t axis_bits, double amount[2]))`
+- [x] `void wlc_set_pointer_motion_cb(bool (*cb)(wlc_handle view, uint32_t time, const struct wlc_point*))`
 - [ ] `void wlc_set_touch_cb(bool (*cb)(wlc_handle view, uint32_t time, const struct wlc_modifiers*, enum wlc_touch_type, int32_t slot, const struct wlc_point*))`
 - [ ] `void wlc_set_compositor_ready_cb(void (*cb)(void))`
 - [ ] `void wlc_set_compositor_terminate_cb(void (*cb)(void))`
