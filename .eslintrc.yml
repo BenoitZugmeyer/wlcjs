@@ -1,0 +1,18 @@
+extends: eslint:recommended
+
+rules:
+    indent: [error, 2]
+    linebreak-style: [error, unix]
+    quotes: [error, double]
+    semi: [error, always]
+    comma-dangle: [error, always-multiline]
+    no-unused-expressions: error
+    prefer-arrow-callback: error
+    object-shorthand: error
+    prefer-template: error
+    prefer-const: error
+    no-var: error
+
+env:
+    es6: true
+    node: true
