@@ -4,19 +4,19 @@ TODO
 Data structures
 ---------------
 
-- [ ] `enum wlc_log_type`
-- [ ] `enum wlc_backend_type`
-- [ ] `enum wlc_event_bit`
-- [ ] `enum wlc_view_state_bit`
-- [ ] `enum wlc_view_type_bit`
-- [ ] `enum wlc_view_property_update_bit`
-- [ ] `enum wlc_resize_edge`
-- [ ] `enum wlc_modifier_bit`
-- [ ] `enum wlc_led_bit`
-- [ ] `enum wlc_key_state`
-- [ ] `enum wlc_button_state`
-- [ ] `enum wlc_scroll_axis_bit`
-- [ ] `enum wlc_touch_type`
+- [x] `enum wlc_log_type`
+- [x] `enum wlc_backend_type`
+- [x] `enum wlc_event_bit`
+- [x] `enum wlc_view_state_bit`
+- [x] `enum wlc_view_type_bit`
+- [x] `enum wlc_view_property_update_bit`
+- [x] `enum wlc_resize_edge`
+- [x] `enum wlc_modifier_bit`
+- [x] `enum wlc_led_bit`
+- [x] `enum wlc_key_state`
+- [x] `enum wlc_button_state`
+- [x] `enum wlc_scroll_axis_bit`
+- [x] `enum wlc_touch_type`
 - [ ] `struct wlc_modifiers`
 
 Callbacks API
