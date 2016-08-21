@@ -60,12 +60,15 @@ Core API
 - [ ] `enum wlc_backend_type wlc_get_backend_type(void)`
 - [ ] `void wlc_exec(const char *bin, char *const args[])`
 - [ ] `void wlc_run(void)`
-- [ ] `void wlc_handle_set_user_data(wlc_handle handle, const void *userdata)`
-- [ ] `void* wlc_handle_get_user_data(wlc_handle handle)`
-- [ ] `struct wlc_event_source* wlc_event_loop_add_fd(int fd, uint32_t mask, int (*cb)(int fd, uint32_t mask, void *userdata), void *userdata)`
-- [ ] `struct wlc_event_source* wlc_event_loop_add_timer(int (*cb)(void *userdata), void *userdata)`
-- [ ] `bool wlc_event_source_timer_update(struct wlc_event_source *source, int32_t ms_delay)`
-- [ ] `void wlc_event_source_remove(struct wlc_event_source *source)`
+
+### Not needed / internal
+
+- `void wlc_handle_set_user_data(wlc_handle handle, const void *userdata)`
+- `void* wlc_handle_get_user_data(wlc_handle handle)`
+- `struct wlc_event_source* wlc_event_loop_add_fd(int fd, uint32_t mask, int (*cb)(int fd, uint32_t mask, void *userdata), void *userdata)`
+- `struct wlc_event_source* wlc_event_loop_add_timer(int (*cb)(void *userdata), void *userdata)`
+- `bool wlc_event_source_timer_update(struct wlc_event_source *source, int32_t ms_delay)`
+- `void wlc_event_source_remove(struct wlc_event_source *source)`
 
 Output API
 ----------
@@ -112,11 +115,14 @@ View API
 - [ ] `const char* wlc_view_get_class(wlc_handle view)`
 - [ ] `const char* wlc_view_get_app_id(wlc_handle view)`
 - [ ] `pid_t wlc_view_get_pid(wlc_handle view)`
+
+Input API
+---------
+
 - [ ] `struct xkb_state* wlc_keyboard_get_xkb_state(void)`
 - [ ] `struct xkb_keymap* wlc_keyboard_get_xkb_keymap(void)`
 - [ ] `const uint32_t* wlc_keyboard_get_current_keys(size_t *out_memb)`
 - [ ] `uint32_t wlc_keyboard_get_keysym_for_key(uint32_t key, const struct wlc_modifiers *modifiers)`
-- [ ] `uint32_t wlc_keyboard_get_utf32_for_key(uint32_t key, const struct wlc_modifiers
-- *modifiers)`
+- [ ] `uint32_t wlc_keyboard_get_utf32_for_key(uint32_t key, const struct wlc_modifiers *modifiers)`
 - [ ] `void wlc_pointer_get_position(struct wlc_point *out_position)`
 - [ ] `void wlc_pointer_set_position(const struct wlc_point *position)`
