@@ -1,5 +1,9 @@
-#ifndef _WLCJS_STATE_H
-#define _WLCJS_STATE_H
+// Copyright (c) 2016 Benoît Zugmeyer
+// Use of this source code is governed by a MIT-style license that can be found
+// in the LICENSE file.
+
+#ifndef SRC_STATE_H_
+#define SRC_STATE_H_
 
 namespace wlcjs {
 
@@ -12,6 +16,6 @@ enum state_t {
 
 extern int state;
 
-}
+}  // namespace wlcjs
 
-#endif
+#endif  // SRC_STATE_H_

@@ -1,5 +1,9 @@
-#ifndef _WLCJS_TYPES_H
-#define _WLCJS_TYPES_H
+// Copyright (c) 2016 Benoît Zugmeyer
+// Use of this source code is governed by a MIT-style license that can be found
+// in the LICENSE file.
+
+#ifndef SRC_TYPES_H_
+#define SRC_TYPES_H_
 
 #include "common.h"
 
@@ -55,7 +59,7 @@ inline bool Unwrap(Maybe<T> value, T* dest) {
   if (value.IsNothing()) return false;
   *dest = value.FromJust();
   return true;
-};
+}
 
 template <class T>
 inline bool TryCast(Local<Value> value, Local<T>* dest) {
@@ -66,17 +70,23 @@ inline bool TryCast(Local<Value> value, Local<T>* dest) {
 
 inline bool TryCast(Local<Value> value, uint32_t* dest) {
   if (!IsType<Number>(value)) return false;
-  return Unwrap(value->Uint32Value(Isolate::GetCurrent()->GetCurrentContext()), dest);
+  return Unwrap(
+      value->Uint32Value(Isolate::GetCurrent()->GetCurrentContext()),
+      dest);
 }
 
 inline bool TryCast(Local<Value> value, int32_t* dest) {
   if (!IsType<Number>(value)) return false;
-  return Unwrap(value->Int32Value(Isolate::GetCurrent()->GetCurrentContext()), dest);
+  return Unwrap(
+      value->Int32Value(Isolate::GetCurrent()->GetCurrentContext()),
+      dest);
 }
 
 inline bool TryCast(Local<Value> value, bool* dest) {
   if (!IsType<Boolean>(value)) return false;
-  return Unwrap(value->BooleanValue(Isolate::GetCurrent()->GetCurrentContext()), dest);
+  return Unwrap(
+      value->BooleanValue(Isolate::GetCurrent()->GetCurrentContext()),
+      dest);
 }
 
 template <class INPUT, class OUTPUT>
@@ -95,8 +105,7 @@ inline bool TryCast(Local<Value> desc, wlc_geometry* geometry) {
     Unwrap(desc_object->Get(context, NewString("x")), &geometry->origin.x) &&
     Unwrap(desc_object->Get(context, NewString("y")), &geometry->origin.y) &&
     Unwrap(desc_object->Get(context, NewString("width")), &geometry->size.w) &&
-    Unwrap(desc_object->Get(context, NewString("height")), &geometry->size.h)
-  );
+    Unwrap(desc_object->Get(context, NewString("height")), &geometry->size.h));
 }
 
 inline bool TryCast(const wlc_geometry* geometry, Local<Object>* output) {
@@ -105,11 +114,25 @@ inline bool TryCast(const wlc_geometry* geometry, Local<Object>* output) {
 
   *output = Object::New(isolate);
   return (
-    (*output)->Set(context, NewString("x"), Integer::New(isolate, geometry->origin.x)).IsJust() &&
-    (*output)->Set(context, NewString("y"), Integer::New(isolate, geometry->origin.y)).IsJust() &&
-    (*output)->Set(context, NewString("width"), Integer::New(isolate, geometry->size.w)).IsJust() &&
-    (*output)->Set(context, NewString("height"), Integer::New(isolate, geometry->size.h)).IsJust()
-  );
+    (*output)->Set(
+      context,
+      NewString("x"),
+      Integer::New(isolate, geometry->origin.x)).IsJust() &&
+
+    (*output)->Set(
+      context,
+      NewString("y"),
+      Integer::New(isolate, geometry->origin.y)).IsJust() &&
+
+    (*output)->Set(
+      context,
+      NewString("width"),
+      Integer::New(isolate, geometry->size.w)).IsJust() &&
+
+    (*output)->Set(
+      context,
+      NewString("height"),
+      Integer::New(isolate, geometry->size.h)).IsJust());
 }
 
 inline bool TryCast(Local<Value> value, wlc_handle* dest) {
@@ -133,9 +156,15 @@ inline bool TryCast(const wlc_size* size, Local<Object>* output) {
 
   *output = Object::New(isolate);
   return (
-    (*output)->Set(context, NewString("width"), Integer::New(isolate, size->w)).IsJust() &&
-    (*output)->Set(context, NewString("height"), Integer::New(isolate, size->h)).IsJust()
-  );
+    (*output)->Set(
+      context,
+      NewString("width"),
+      Integer::New(isolate, size->w)).IsJust() &&
+
+    (*output)->Set(
+      context,
+      NewString("height"),
+      Integer::New(isolate, size->h)).IsJust());
 }
 
 inline bool TryCast(const wlc_modifiers* modifiers, Local<Object>* output) {
@@ -146,9 +175,15 @@ inline bool TryCast(const wlc_modifiers* modifiers, Local<Object>* output) {
 
   *output = Object::New(isolate);
   return (
-    (*output)->Set(context, NewString("mods"), Integer::New(isolate, modifiers->mods)).IsJust() &&
-    (*output)->Set(context, NewString("height"), Integer::New(isolate, modifiers->leds)).IsJust()
-  );
+    (*output)->Set(
+      context,
+      NewString("mods"),
+      Integer::New(isolate, modifiers->mods)).IsJust() &&
+
+    (*output)->Set(
+      context,
+      NewString("height"),
+      Integer::New(isolate, modifiers->leds)).IsJust());
 }
 
 inline bool TryCast(const wlc_point* point, Local<Object>* output) {
@@ -159,9 +194,15 @@ inline bool TryCast(const wlc_point* point, Local<Object>* output) {
 
   *output = Object::New(isolate);
   return (
-    (*output)->Set(context, NewString("x"), Integer::New(isolate, point->x)).IsJust() &&
-    (*output)->Set(context, NewString("y"), Integer::New(isolate, point->y)).IsJust()
-  );
+    (*output)->Set(
+      context,
+      NewString("x"),
+      Integer::New(isolate, point->x)).IsJust() &&
+
+    (*output)->Set(
+      context,
+      NewString("y"),
+      Integer::New(isolate, point->y)).IsJust());
 }
 
 template <class T>
@@ -188,6 +229,6 @@ inline T UnwrapOr(MaybeLocal<Value> value, T default_) {
 }
 
 
-}
+}  // namespace wlcjs
 
-#endif
+#endif  // SRC_TYPES_H_

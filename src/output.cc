@@ -1,3 +1,7 @@
+// Copyright (c) 2016 Benoît Zugmeyer
+// Use of this source code is governed by a MIT-style license that can be found
+// in the LICENSE file.
+
 #include "types.h"
 
 namespace wlcjs {
@@ -5,7 +9,9 @@ namespace Output {
 
 #define UNWRAP_OUTPUT \
   wlc_handle output; \
-  if (!TryCast(info[0], &output)) THROW(TypeError, "First argument must be an output");
+  if (!TryCast(info[0], &output)) { \
+    THROW(TypeError, "First argument must be an output"); \
+  }
 
 METHOD(GetName) {
   UNWRAP_OUTPUT
@@ -42,5 +48,5 @@ void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getResolution", GetResolution);
 }
 
-}
-}
+}  // namespace Output
+}  // namespace wlcjs

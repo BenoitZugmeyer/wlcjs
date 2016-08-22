@@ -1,4 +1,8 @@
-#include "common.h"
+// Copyright (c) 2016 Benoît Zugmeyer
+// Use of this source code is governed by a MIT-style license that can be found
+// in the LICENSE file.
+
+#include "./common.h"
 
 namespace wlcjs {
 
@@ -20,7 +24,9 @@ namespace Input {
 void Export(Local<Object> exports);
 }
 
-void init_ns(Local<Object> exports, const char* name, void (*Export)(Local<Object>)) {
+void init_ns(
+    Local<Object> exports,
+    const char* name, void (*Export)(Local<Object>)) {
   Isolate* isolate = Isolate::GetCurrent();
   Local<Context> context = isolate->GetCurrentContext();
 
@@ -39,4 +45,4 @@ void init(Local<Object> exports) {
 
 NODE_MODULE(addon, init)
 
-}
+}  // namespace wlcjs

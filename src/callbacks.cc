@@ -1,5 +1,10 @@
-#include "util.h"
-#include "types.h"
+// Copyright (c) 2016 Benoît Zugmeyer
+// Use of this source code is governed by a MIT-style license that can be found
+// in the LICENSE file.
+
+#include "./callbacks.h"
+#include "./util.h"
+#include "./types.h"
 
 namespace wlcjs {
 namespace Callbacks {
@@ -15,11 +20,17 @@ MaybeLocal<Value> CallMeMaybe(const char* name, int argc, Local<Value> argv[]) {
   Local<Object> callbacks = persistent_callbacks.Unwrap();
   Local<Function> v;
 
-  if (!Unwrap(callbacks->Get(isolate->GetCurrentContext(), NewString(name)), &v)) {
+  if (!Unwrap(
+        callbacks->Get(isolate->GetCurrentContext(), NewString(name)),
+        &v)) {
     return MaybeLocal<Value>();
   }
 
-  return v.As<Function>()->Call(isolate->GetCurrentContext(), Null(isolate), argc, argv);
+  return v.As<Function>()->Call(
+      isolate->GetCurrentContext(),
+      Null(isolate),
+      argc,
+      argv);
 }
 
 bool output_created_cb(wlc_handle output) {
@@ -47,7 +58,10 @@ void output_focus_cb(wlc_handle output, bool focus) {
   CallMeMaybe("outputFocus", 2, argv);
 }
 
-void output_resolution_cb(wlc_handle output, const wlc_size* from, const wlc_size* to) {
+void output_resolution_cb(
+    wlc_handle output,
+    const wlc_size* from,
+    const wlc_size* to) {
   MK_SCOPE
   Local<Object> from_js;
   Local<Object> to_js;
@@ -87,7 +101,10 @@ void view_focus_cb(wlc_handle view, bool focus) {
   CallMeMaybe("viewFocus", 2, argv);
 }
 
-void view_move_to_output_cb(wlc_handle view, wlc_handle from_output, wlc_handle to_output) {
+void view_move_to_output_cb(
+    wlc_handle view,
+    wlc_handle from_output,
+    wlc_handle to_output) {
   MK_SCOPE
   Local<Value> argv[] = {
     Number::New(isolate, view),
@@ -98,7 +115,12 @@ void view_move_to_output_cb(wlc_handle view, wlc_handle from_output, wlc_handle 
 }
 
 
-bool keyboard_key_cb(wlc_handle view, uint32_t time, const wlc_modifiers* modifiers, uint32_t key, wlc_key_state key_state) {
+bool keyboard_key_cb(
+    wlc_handle view,
+    uint32_t time,
+    const wlc_modifiers* modifiers,
+    uint32_t key,
+    wlc_key_state key_state) {
   MK_SCOPE
   Local<Object> modifiers_js;
   if (!TryCast(modifiers, &modifiers_js)) return false;
@@ -113,9 +135,13 @@ bool keyboard_key_cb(wlc_handle view, uint32_t time, const wlc_modifiers* modifi
   return UnwrapOr(CallMeMaybe("keyboardKey", 5, argv), false);
 }
 
-bool pointer_button_cb(wlc_handle view, uint32_t time,
-    const struct wlc_modifiers* modifiers, uint32_t button,
-    enum wlc_button_state state, const struct wlc_point* origin) {
+bool pointer_button_cb(
+    wlc_handle view,
+    uint32_t time,
+    const struct wlc_modifiers* modifiers,
+    uint32_t button,
+    enum wlc_button_state state,
+    const struct wlc_point* origin) {
 
   MK_SCOPE
   Local<Object> modifiers_js;
@@ -213,5 +239,5 @@ void init() {
 }
 
 
-}
-}
+}  // namespace Callbacks
+}  // namespace wlcjs

@@ -1,11 +1,17 @@
-#include "types.h"
+// Copyright (c) 2016 Benoît Zugmeyer
+// Use of this source code is governed by a MIT-style license that can be found
+// in the LICENSE file.
+
+#include "./types.h"
 
 namespace wlcjs {
 namespace View {
 
 #define UNWRAP_VIEW \
   wlc_handle view; \
-  if (!TryCast(info[0], &view)) THROW(TypeError, "First argument must be a view");
+  if (!TryCast(info[0], &view)) { \
+    THROW(TypeError, "First argument must be a view"); \
+  }
 
 METHOD(Focus) {
   UNWRAP_VIEW
@@ -26,7 +32,9 @@ METHOD(GetOutput) {
 METHOD(SetOutput) {
   UNWRAP_VIEW
   wlc_handle output;
-  if (!TryCast(info[1], &output)) THROW(TypeError, "Second argument must be an output");
+  if (!TryCast(info[1], &output)) {
+    THROW(TypeError, "Second argument must be an output");
+  }
   wlc_view_set_output(view, output);
 }
 
@@ -38,14 +46,18 @@ METHOD(SendToBack) {
 METHOD(SendBelow) {
   UNWRAP_VIEW
   wlc_handle other;
-  if (!TryCast(info[1], &other)) THROW(TypeError, "Second argument must be a view");
+  if (!TryCast(info[1], &other)) {
+    THROW(TypeError, "Second argument must be a view");
+  }
   wlc_view_send_below(view, other);
 }
 
 METHOD(BringAbove) {
   UNWRAP_VIEW
   wlc_handle other;
-  if (!TryCast(info[1], &other)) THROW(TypeError, "Second argument must be a view");
+  if (!TryCast(info[1], &other)) {
+    THROW(TypeError, "Second argument must be a view");
+  }
   wlc_view_bring_above(view, other);
 }
 
@@ -72,12 +84,13 @@ METHOD(SetGeometry) {
   wlc_geometry geometry;
   uint32_t edge;
 
-  if (!TryCast(info[2], &geometry)) THROW(TypeError, "Third argument is not a valid geometry object");
+  if (!TryCast(info[2], &geometry)) {
+    THROW(TypeError, "Third argument is not a valid geometry object");
+  }
 
   if (info[1]->IsUndefined()) {
     edge = 0;
-  }
-  else if (!TryCast(info[1], &edge)) {
+  } else if (!TryCast(info[1], &edge)) {
     THROW(TypeError, "Second argument must be a Number");
   }
 
@@ -94,8 +107,12 @@ METHOD(SetState) {
   UNWRAP_VIEW
   uint32_t state;
   bool value;
-  if (!TryCast(info[1], &state)) THROW(TypeError, "Second argument is not a Number");
-  if (!TryCast(info[2], &value)) THROW(TypeError, "Third argument is not a Boolean");
+  if (!TryCast(info[1], &state)) {
+    THROW(TypeError, "Second argument is not a Number");
+  }
+  if (!TryCast(info[2], &value)) {
+    THROW(TypeError, "Third argument is not a Boolean");
+  }
   wlc_view_set_state(view, static_cast<wlc_view_state_bit>(state), value);
 }
 
@@ -121,5 +138,5 @@ void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getTitle", GetTitle);
 }
 
-}
-}
+}  // namespace View
+}  // namespace wlcjs

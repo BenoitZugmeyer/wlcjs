@@ -1,15 +1,18 @@
-#ifndef _WLCJS_UTIL_H
-#define _WLCJS_UTIL_H
+// Copyright (c) 2016 Benoît Zugmeyer
+// Use of this source code is governed by a MIT-style license that can be found
+// in the LICENSE file.
 
-#include "common.h"
-#include "types.h"
+#ifndef SRC_UTIL_H_
+#define SRC_UTIL_H_
+
+#include "./common.h"
+#include "./types.h"
 
 namespace wlcjs {
 
 template <class T>
 class SimplePersistent : public Persistent<T> {
-public:
-
+ public:
   template <class S>
   V8_INLINE void Reset(Isolate* isolate, const Local<S>& other) {
     this->isolate = isolate;
@@ -24,7 +27,7 @@ public:
     return Local<T>::New(this->isolate, *this);
   }
 
-private:
+ private:
   Isolate* isolate;
 };
 
@@ -35,6 +38,6 @@ inline char* v8string_to_cstring(Local<String> str) {
   return result;
 }
 
-}
+}  // namespace wlcjs
 
-#endif
+#endif  // SRC_UTIL_H_

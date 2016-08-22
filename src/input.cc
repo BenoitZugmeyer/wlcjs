@@ -1,3 +1,7 @@
+// Copyright (c) 2016 Benoît Zugmeyer
+// Use of this source code is governed by a MIT-style license that can be found
+// in the LICENSE file.
+
 #include <xkbcommon/xkbcommon.h>
 #include "util.h"
 #include "types.h"
@@ -18,11 +22,15 @@ METHOD(GetCurrentKeys) {
 
 METHOD(GetKeysymForKey) {
   ISOLATE(info)
-  if (~state & STATE_INITIALIZED) THROW(Error, "'init' has to be called before calling 'getKeysymForKey'");
+  if (~state & STATE_INITIALIZED) {
+    THROW(Error, "'init' has to be called before calling 'getKeysymForKey'");
+  }
 
-  // TODO modifiers support
+  // TODO(benoitz) modifiers support
   uint32_t key;
-  if (!TryCast(info[0], &key)) THROW(TypeError, "getKeysymForKey argument must be a number");
+  if (!TryCast(info[0], &key)) {
+    THROW(TypeError, "getKeysymForKey argument must be a number");
+  }
 
   uint32_t keysym = wlc_keyboard_get_keysym_for_key(key, NULL);
 
@@ -30,15 +38,23 @@ METHOD(GetKeysymForKey) {
 }
 
 METHOD(GetKeysymNameForKey) {
-  if (~state & STATE_INITIALIZED) THROW(Error, "'init' has to be called before calling 'getKeysymNameForKey'");
+  if (~state & STATE_INITIALIZED) {
+    THROW(
+        Error,
+        "'init' has to be called before calling 'getKeysymNameForKey'");
+  }
 
-  // TODO modifiers support
+  // TODO(benoitz) modifiers support
   uint32_t key;
-  if (!TryCast(info[0], &key)) THROW(TypeError, "getKeysymNameForKey argument must be a number");
+  if (!TryCast(info[0], &key)) {
+    THROW(TypeError, "getKeysymNameForKey argument must be a number");
+  }
 
   uint32_t keysym = wlc_keyboard_get_keysym_for_key(key, NULL);
   char buffer[100];
-  if (xkb_keysym_get_name(keysym, buffer, 100) < 0) THROW(Error, "Invalid keysym");
+  if (xkb_keysym_get_name(keysym, buffer, 100) < 0) {
+    THROW(Error, "Invalid keysym");
+  }
 
   RETURN(NewString(buffer));
 }
@@ -49,5 +65,5 @@ void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getKeysymNameForKey", GetKeysymNameForKey);
 }
 
-}
-}
+}  // namespace Input
+}  // namespace wlcjs

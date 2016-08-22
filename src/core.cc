@@ -1,3 +1,7 @@
+// Copyright (c) 2016 Benoît Zugmeyer
+// Use of this source code is governed by a MIT-style license that can be found
+// in the LICENSE file.
+
 #include "types.h"
 #include "callbacks.h"
 #include "util.h"
@@ -24,7 +28,9 @@ void log_handler(enum wlc_log_type type, const char *str) {
 METHOD(SetLogHandler) {
   ISOLATE(info);
   Local<Function> handler;
-  if (!TryCast(info[0], &handler)) THROW(TypeError, "logHandler argument must be a Function");
+  if (!TryCast(info[0], &handler)) {
+    THROW(TypeError, "logHandler argument must be a Function");
+  }
   persistent_log_handler.Reset(isolate, handler);
 }
 
@@ -47,7 +53,9 @@ METHOD(Terminate) {
 
 METHOD(GetBackendType) {
   ISOLATE(info)
-  if (~state & STATE_INITIALIZED) THROW(Error, "'init' has to be called before calling 'getBackendType'");
+  if (~state & STATE_INITIALIZED) {
+    THROW(Error, "'init' has to be called before calling 'getBackendType'");
+  }
   RETURN(Number::New(isolate, wlc_get_backend_type()));
 }
 
@@ -64,7 +72,9 @@ METHOD(Exec) {
 
   Local<String> str;
   for (size_t i = 0; i < length; i += 1) {
-    if (!TryCast(info[i], &str)) THROW(TypeError, "wlc.exec argument %d must be a String", i);
+    if (!TryCast(info[i], &str)) {
+      THROW(TypeError, "wlc.exec argument %d must be a String", i);
+    }
     argv[i] = v8string_to_cstring(str);
   }
   argv[length] = NULL;
@@ -90,8 +100,12 @@ void run_cb(uv_timer_t* handle) {
 }
 
 METHOD(Run) {
-  if (~state & STATE_INITIALIZED) THROW(Error, "'init' has to be called before calling 'run'");
-  if (state & STATE_RUNNING) THROW(Error, "'run' can't be called twice");
+  if (~state & STATE_INITIALIZED) {
+    THROW(Error, "'init' has to be called before calling 'run'");
+  }
+  if (state & STATE_RUNNING) {
+    THROW(Error, "'run' can't be called twice");
+  }
 
   state = STATE_RUNNING | STATE_INITIALIZED;
 
@@ -100,7 +114,9 @@ METHOD(Run) {
 }
 
 METHOD(GetOutputs) {
-  if (~state & STATE_INITIALIZED) THROW(Error, "'init' has to be called before calling 'getOutputs'");
+  if (~state & STATE_INITIALIZED) {
+    THROW(Error, "'init' has to be called before calling 'getOutputs'");
+  }
 
   size_t memb;
   Local<Array> result;
@@ -128,4 +144,4 @@ void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getFocusedOutput", GetFocusedOutput);
 }
 
-}
+}  // namespace wlcjs

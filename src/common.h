@@ -1,5 +1,9 @@
-#ifndef _WLCJS_COMMON_H
-#define _WLCJS_COMMON_H
+// Copyright (c) 2016 Benoît Zugmeyer
+// Use of this source code is governed by a MIT-style license that can be found
+// in the LICENSE file.
+
+#ifndef SRC_COMMON_H_
+#define SRC_COMMON_H_
 
 extern "C" {
 #include <wlc/wlc.h>
@@ -49,7 +53,7 @@ using v8::AccessorSetterCallback;
 #define THROW(T, ...) do {\
   ThrowException(Exception::T, ##__VA_ARGS__);\
   return;\
-} while(0)
+} while (0)
 
 #define RETURN(V) \
   info.GetReturnValue().Set(V);\
@@ -58,20 +62,27 @@ using v8::AccessorSetterCallback;
 #define METHOD(N) void N(const FunctionCallbackInfo<Value>& info)
 
 inline Local<String> NewString(const char* s) {
-  return String::NewFromUtf8(Isolate::GetCurrent(), s, NewStringType::kInternalized).ToLocalChecked();
+  return String::NewFromUtf8(
+      Isolate::GetCurrent(),
+      s,
+      NewStringType::kInternalized)
+    .ToLocalChecked();
 }
 
-inline void ThrowException(Local<Value> (*ex)(Local<String>), const char* format, ...) {
+inline void ThrowException(
+    Local<Value> (*ex)(Local<String>),
+    const char* format,
+    ...) {
   va_list args;
   va_start(args, format);
 
   char buffer[256];
-  vsnprintf(buffer, 256, format, args);
+  vsnprintf(buffer, sizeof(buffer), format, args);
   Isolate::GetCurrent()->ThrowException(ex(NewString(buffer)));
   va_end(args);
 }
 
 
-}
+}  // namespace wlcjs
 
-#endif
+#endif  // SRC_COMMON_H_
