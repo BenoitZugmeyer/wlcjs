@@ -5,7 +5,7 @@
 #ifndef SRC_TYPES_H_
 #define SRC_TYPES_H_
 
-#include "common.h"
+#include "./common.h"
 
 namespace wlcjs {
 

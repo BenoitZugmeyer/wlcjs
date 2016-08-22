@@ -3,26 +3,13 @@
 // in the LICENSE file.
 
 #include "./common.h"
+#include "./callbacks.h"
+#include "./input.h"
+#include "./output.h"
+#include "./view.h"
+#include "./core.h"
 
 namespace wlcjs {
-
-void Export(Local<Object> exports);
-
-namespace View {
-void Export(Local<Object> exports);
-}
-
-namespace Output {
-void Export(Local<Object> exports);
-}
-
-namespace Callbacks {
-void Export(Local<Object> exports);
-}
-
-namespace Input {
-void Export(Local<Object> exports);
-}
 
 void init_ns(
     Local<Object> exports,
@@ -36,7 +23,7 @@ void init_ns(
 }
 
 void init(Local<Object> exports) {
-  Export(exports);
+  Core::Export(exports);
   init_ns(exports, "callbacks", Callbacks::Export);
   init_ns(exports, "input", Input::Export);
   init_ns(exports, "view", View::Export);

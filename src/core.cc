@@ -2,12 +2,13 @@
 // Use of this source code is governed by a MIT-style license that can be found
 // in the LICENSE file.
 
-#include "types.h"
-#include "callbacks.h"
-#include "util.h"
-#include "state.h"
+#include "./types.h"
+#include "./callbacks.h"
+#include "./util.h"
+#include "./state.h"
 
 namespace wlcjs {
+namespace Core {
 
 wlc_event_source* timer = NULL;
 uv_timer_t async_run_timer;
@@ -144,4 +145,5 @@ void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getFocusedOutput", GetFocusedOutput);
 }
 
+}  // namespace Core
 }  // namespace wlcjs

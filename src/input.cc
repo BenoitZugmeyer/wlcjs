@@ -3,9 +3,9 @@
 // in the LICENSE file.
 
 #include <xkbcommon/xkbcommon.h>
-#include "util.h"
-#include "types.h"
-#include "state.h"
+#include "./util.h"
+#include "./types.h"
+#include "./state.h"
 
 namespace wlcjs {
 namespace Input {
