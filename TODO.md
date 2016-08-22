@@ -54,12 +54,12 @@ Callbacks API
 Core API
 --------
 
-- [ ] `void wlc_log_set_handler(void (*cb)(enum wlc_log_type type, const char *str))`
-- [ ] `bool wlc_init(void)`
-- [ ] `void wlc_terminate(void)`
-- [ ] `enum wlc_backend_type wlc_get_backend_type(void)`
-- [ ] `void wlc_exec(const char *bin, char *const args[])`
-- [ ] `void wlc_run(void)`
+- [x] `void wlc_log_set_handler(void (*cb)(enum wlc_log_type type, const char *str))`
+- [x] `bool wlc_init(void)`
+- [x] `void wlc_terminate(void)`
+- [x] `enum wlc_backend_type wlc_get_backend_type(void)`
+- [x] `void wlc_exec(const char *bin, char *const args[])`
+- [x] `void wlc_run(void)`
 
 ### Not needed / internal
 
@@ -73,18 +73,18 @@ Core API
 Output API
 ----------
 
-- [ ] `const wlc_handle* wlc_get_outputs(size_t *out_memb)`
-- [ ] `wlc_handle wlc_get_focused_output(void)`
-- [ ] `const char* wlc_output_get_name(wlc_handle output)`
+- [x] `const wlc_handle* wlc_get_outputs(size_t *out_memb)`
+- [x] `wlc_handle wlc_get_focused_output(void)`
+- [x] `const char* wlc_output_get_name(wlc_handle output)`
 - [ ] `bool wlc_output_get_sleep(wlc_handle output)`
 - [ ] `void wlc_output_set_sleep(wlc_handle output, bool sleep)`
 - [ ] `const struct wlc_size* wlc_output_get_resolution(wlc_handle output)`
 - [ ] `const struct wlc_size* wlc_output_get_virtual_resolution(wlc_handle output)`
-- [ ] `void wlc_output_set_resolution(wlc_handle output, const struct wlc_size *resolution, uint32_t scale)`
+- [x] `void wlc_output_set_resolution(wlc_handle output, const struct wlc_size *resolution, uint32_t scale)`
 - [ ] `uint32_t wlc_output_get_scale(wlc_handle output)`
 - [ ] `uint32_t wlc_output_get_mask(wlc_handle output)`
 - [ ] `void wlc_output_set_mask(wlc_handle output, uint32_t mask)`
-- [ ] `const wlc_handle* wlc_output_get_views(wlc_handle output, size_t *out_memb)`
+- [x] `const wlc_handle* wlc_output_get_views(wlc_handle output, size_t *out_memb)`
 - [ ] `wlc_handle* wlc_output_get_mutable_views(wlc_handle output, size_t *out_memb)`
 - [ ] `bool wlc_output_set_views(wlc_handle output, const wlc_handle *views, size_t memb)`
 - [ ] `void wlc_output_focus(wlc_handle output)`
@@ -92,26 +92,26 @@ Output API
 View API
 --------
 
-- [ ] `void wlc_view_focus(wlc_handle view)`
-- [ ] `void wlc_view_close(wlc_handle view)`
-- [ ] `wlc_handle wlc_view_get_output(wlc_handle view)`
-- [ ] `void wlc_view_set_output(wlc_handle view, wlc_handle output)`
-- [ ] `void wlc_view_send_to_back(wlc_handle view)`
-- [ ] `void wlc_view_send_below(wlc_handle view, wlc_handle other)`
-- [ ] `void wlc_view_bring_above(wlc_handle view, wlc_handle other)`
-- [ ] `void wlc_view_bring_to_front(wlc_handle view)`
+- [x] `void wlc_view_focus(wlc_handle view)`
+- [x] `void wlc_view_close(wlc_handle view)`
+- [x] `wlc_handle wlc_view_get_output(wlc_handle view)`
+- [x] `void wlc_view_set_output(wlc_handle view, wlc_handle output)`
+- [x] `void wlc_view_send_to_back(wlc_handle view)`
+- [x] `void wlc_view_send_below(wlc_handle view, wlc_handle other)`
+- [x] `void wlc_view_bring_above(wlc_handle view, wlc_handle other)`
+- [x] `void wlc_view_bring_to_front(wlc_handle view)`
 - [ ] `uint32_t wlc_view_get_mask(wlc_handle view)`
 - [ ] `void wlc_view_set_mask(wlc_handle view, uint32_t mask)`
-- [ ] `const struct wlc_geometry* wlc_view_get_geometry(wlc_handle view)`
+- [x] `const struct wlc_geometry* wlc_view_get_geometry(wlc_handle view)`
 - [ ] `void wlc_view_get_visible_geometry(wlc_handle view, struct wlc_geometry *out_geometry)`
-- [ ] `void wlc_view_set_geometry(wlc_handle view, uint32_t edges, const struct wlc_geometry *geometry)`
+- [x] `void wlc_view_set_geometry(wlc_handle view, uint32_t edges, const struct wlc_geometry *geometry)`
 - [ ] `uint32_t wlc_view_get_type(wlc_handle view)`
 - [ ] `void wlc_view_set_type(wlc_handle view, enum wlc_view_type_bit type, bool toggle)`
-- [ ] `uint32_t wlc_view_get_state(wlc_handle view)`
-- [ ] `void wlc_view_set_state(wlc_handle view, enum wlc_view_state_bit state, bool toggle)`
+- [x] `uint32_t wlc_view_get_state(wlc_handle view)`
+- [x] `void wlc_view_set_state(wlc_handle view, enum wlc_view_state_bit state, bool toggle)`
 - [ ] `wlc_handle wlc_view_get_parent(wlc_handle view)`
 - [ ] `void wlc_view_set_parent(wlc_handle view, wlc_handle parent)`
-- [ ] `const char* wlc_view_get_title(wlc_handle view)`
+- [x] `const char* wlc_view_get_title(wlc_handle view)`
 - [ ] `const char* wlc_view_get_class(wlc_handle view)`
 - [ ] `const char* wlc_view_get_app_id(wlc_handle view)`
 - [ ] `pid_t wlc_view_get_pid(wlc_handle view)`
@@ -121,8 +121,8 @@ Input API
 
 - [ ] `struct xkb_state* wlc_keyboard_get_xkb_state(void)`
 - [ ] `struct xkb_keymap* wlc_keyboard_get_xkb_keymap(void)`
-- [ ] `const uint32_t* wlc_keyboard_get_current_keys(size_t *out_memb)`
-- [ ] `uint32_t wlc_keyboard_get_keysym_for_key(uint32_t key, const struct wlc_modifiers *modifiers)`
+- [x] `const uint32_t* wlc_keyboard_get_current_keys(size_t *out_memb)`
+- [x] `uint32_t wlc_keyboard_get_keysym_for_key(uint32_t key, const struct wlc_modifiers *modifiers)`
 - [ ] `uint32_t wlc_keyboard_get_utf32_for_key(uint32_t key, const struct wlc_modifiers *modifiers)`
 - [ ] `void wlc_pointer_get_position(struct wlc_point *out_position)`
 - [ ] `void wlc_pointer_set_position(const struct wlc_point *position)`

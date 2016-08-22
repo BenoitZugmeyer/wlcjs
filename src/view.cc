@@ -7,11 +7,6 @@ namespace View {
   wlc_handle view; \
   if (!TryCast(info[0], &view)) THROW(TypeError, "First argument must be a view");
 
-METHOD(GetTitle) {
-  UNWRAP_VIEW
-  RETURN(NewString(wlc_view_get_title(view)));
-}
-
 METHOD(Focus) {
   UNWRAP_VIEW
   wlc_view_focus(view);
@@ -59,6 +54,18 @@ METHOD(BringToFront) {
   wlc_view_bring_to_front(view);
 }
 
+METHOD(GetGeometry) {
+  UNWRAP_VIEW
+
+  const wlc_geometry* geometry = wlc_view_get_geometry(view);
+  if (!geometry) return;
+
+  Local<Object> result;
+  if (!TryCast(geometry, &result)) return;
+
+  RETURN(result);
+}
+
 METHOD(SetGeometry) {
   UNWRAP_VIEW
 
@@ -77,16 +84,10 @@ METHOD(SetGeometry) {
   wlc_view_set_geometry(view, edge, &geometry);
 }
 
-METHOD(GetGeometry) {
+METHOD(GetState) {
   UNWRAP_VIEW
-
-  const wlc_geometry* geometry = wlc_view_get_geometry(view);
-  if (!geometry) return;
-
-  Local<Object> result;
-  if (!TryCast(geometry, &result)) return;
-
-  RETURN(result);
+  ISOLATE(info);
+  RETURN(Number::New(isolate, wlc_view_get_state(view)));
 }
 
 METHOD(SetState) {
@@ -98,26 +99,26 @@ METHOD(SetState) {
   wlc_view_set_state(view, static_cast<wlc_view_state_bit>(state), value);
 }
 
-METHOD(GetState) {
+METHOD(GetTitle) {
   UNWRAP_VIEW
-  ISOLATE(info);
-  RETURN(Number::New(isolate, wlc_view_get_state(view)));
+  RETURN(NewString(wlc_view_get_title(view)));
 }
 
+
 void Export(Local<Object> exports) {
-  NODE_SET_METHOD(exports, "getTitle", GetTitle);
   NODE_SET_METHOD(exports, "focus", Focus);
   NODE_SET_METHOD(exports, "close", Close);
   NODE_SET_METHOD(exports, "getOutput", GetOutput);
   NODE_SET_METHOD(exports, "setOutput", SetOutput);
   NODE_SET_METHOD(exports, "sendToBack", SendToBack);
   NODE_SET_METHOD(exports, "sendBelow", SendBelow);
-  NODE_SET_METHOD(exports, "bringToFront", BringToFront);
   NODE_SET_METHOD(exports, "bringAbove", BringAbove);
-  NODE_SET_METHOD(exports, "setGeometry", SetGeometry);
+  NODE_SET_METHOD(exports, "bringToFront", BringToFront);
   NODE_SET_METHOD(exports, "getGeometry", GetGeometry);
+  NODE_SET_METHOD(exports, "setGeometry", SetGeometry);
   NODE_SET_METHOD(exports, "getState", GetState);
   NODE_SET_METHOD(exports, "setState", SetState);
+  NODE_SET_METHOD(exports, "getTitle", GetTitle);
 }
 
 }

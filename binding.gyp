@@ -7,7 +7,9 @@
         "src/callbacks.cc",
         "src/output.cc",
         "src/view.cc",
-        "src/base.cc",
+        "src/core.cc",
+        "src/input.cc",
+        "src/state.cc",
       ],
       "defines": [
         # "V8_DEPRECATION_WARNINGS=1",
