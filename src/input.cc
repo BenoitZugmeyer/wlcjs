@@ -59,10 +59,24 @@ METHOD(GetKeysymNameForKey) {
   RETURN(NewString(buffer));
 }
 
+METHOD(SetPointerPosition) {
+  if (~state & STATE_INITIALIZED) {
+    THROW( Error, "'init' has to be called before calling 'setPointerPosition'");
+  }
+
+  wlc_point point;
+  if (!TryCast(info[0], &point)) {
+    THROW(TypeError, "setPointerPosition argument must be a point");
+  }
+
+  wlc_pointer_set_position(&point);
+}
+
 void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getCurrentKeys", GetCurrentKeys);
   NODE_SET_METHOD(exports, "getKeysymForKey", GetKeysymForKey);
   NODE_SET_METHOD(exports, "getKeysymNameForKey", GetKeysymNameForKey);
+  NODE_SET_METHOD(exports, "setPointerPosition", SetPointerPosition);
 }
 
 }  // namespace Input

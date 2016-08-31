@@ -205,6 +205,17 @@ inline bool TryCast(const wlc_point* point, Local<Object>* output) {
       Integer::New(isolate, point->y)).IsJust());
 }
 
+inline bool TryCast(Local<Value> desc, wlc_point* point) {
+  Local<Object> desc_object;
+  if (!TryCast(desc, &desc_object)) return false;
+
+  auto context = Isolate::GetCurrent()->GetCurrentContext();
+
+  return (
+    Unwrap(desc_object->Get(context, NewString("x")), &point->x) &&
+    Unwrap(desc_object->Get(context, NewString("y")), &point->y));
+}
+
 template <class T>
 inline bool TryCast(const T* arr, size_t memb, Local<Array>* output) {
   auto isolate = Isolate::GetCurrent();

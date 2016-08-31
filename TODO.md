@@ -125,4 +125,4 @@ Input API
 - [x] `uint32_t wlc_keyboard_get_keysym_for_key(uint32_t key, const struct wlc_modifiers *modifiers)`
 - [ ] `uint32_t wlc_keyboard_get_utf32_for_key(uint32_t key, const struct wlc_modifiers *modifiers)`
 - [ ] `void wlc_pointer_get_position(struct wlc_point *out_position)`
-- [ ] `void wlc_pointer_set_position(const struct wlc_point *position)`
+- [x] `void wlc_pointer_set_position(const struct wlc_point *position)`
