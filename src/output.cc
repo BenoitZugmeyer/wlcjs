@@ -18,18 +18,6 @@ METHOD(GetName) {
   RETURN(NewString(wlc_output_get_name(output)));
 }
 
-METHOD(GetViews) {
-  UNWRAP_OUTPUT
-
-  size_t memb;
-  Local<Array> result;
-
-  const wlc_handle* views = wlc_output_get_views(output, &memb);
-  if (!TryCast(views, memb, &result)) return;
-
-  RETURN(result);
-}
-
 METHOD(GetResolution) {
   UNWRAP_OUTPUT
 
@@ -42,10 +30,46 @@ METHOD(GetResolution) {
   RETURN(resolution_js);
 }
 
+METHOD(GetMask) {
+  UNWRAP_OUTPUT
+
+  const uint32_t mask = wlc_output_get_mask(output);
+
+  Local<Integer> mask_js;
+  if (!TryCast(mask, &mask_js)) return;
+
+  RETURN(mask_js);
+}
+
+METHOD(SetMask) {
+  UNWRAP_OUTPUT
+
+  uint32_t mask;
+  if (!TryCast(info[1], &mask)) {
+    THROW(TypeError, "Second argument must be a Uint32");
+  }
+
+  wlc_output_set_mask(output, mask);
+}
+
+METHOD(GetViews) {
+  UNWRAP_OUTPUT
+
+  size_t memb;
+  Local<Array> result;
+
+  const wlc_handle* views = wlc_output_get_views(output, &memb);
+  if (!TryCast(views, memb, &result)) return;
+
+  RETURN(result);
+}
+
 void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getName", GetName);
-  NODE_SET_METHOD(exports, "getViews", GetViews);
   NODE_SET_METHOD(exports, "getResolution", GetResolution);
+  NODE_SET_METHOD(exports, "getMask", GetMask);
+  NODE_SET_METHOD(exports, "setMask", SetMask);
+  NODE_SET_METHOD(exports, "getViews", GetViews);
 }
 
 }  // namespace Output

@@ -25,6 +25,7 @@ using v8::Function;
 using v8::Persistent;
 using v8::Number;
 using v8::Integer;
+using v8::Uint32;
 using v8::FunctionCallbackInfo;
 using v8::Exception;
 using v8::Array;

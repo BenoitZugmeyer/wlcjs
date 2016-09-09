@@ -67,6 +67,28 @@ METHOD(BringToFront) {
   wlc_view_bring_to_front(view);
 }
 
+METHOD(GetMask) {
+  UNWRAP_VIEW
+
+  const uint32_t mask = wlc_view_get_mask(view);
+
+  Local<Integer> mask_js;
+  if (!TryCast(mask, &mask_js)) return;
+
+  RETURN(mask_js);
+}
+
+METHOD(SetMask) {
+  UNWRAP_VIEW
+
+  uint32_t mask;
+  if (!TryCast(info[1], &mask)) {
+    THROW(TypeError, "Second argument must be a Uint32");
+  }
+
+  wlc_view_set_mask(view, mask);
+}
+
 METHOD(GetGeometry) {
   UNWRAP_VIEW
 
@@ -132,6 +154,8 @@ void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "sendBelow", SendBelow);
   NODE_SET_METHOD(exports, "bringAbove", BringAbove);
   NODE_SET_METHOD(exports, "bringToFront", BringToFront);
+  NODE_SET_METHOD(exports, "getMask", GetMask);
+  NODE_SET_METHOD(exports, "setMask", SetMask);
   NODE_SET_METHOD(exports, "getGeometry", GetGeometry);
   NODE_SET_METHOD(exports, "setGeometry", SetGeometry);
   NODE_SET_METHOD(exports, "getState", GetState);

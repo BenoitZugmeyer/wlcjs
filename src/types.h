@@ -232,6 +232,12 @@ inline bool TryCast(const T* arr, size_t memb, Local<Array>* output) {
   return true;
 }
 
+inline bool TryCast(const uint32_t number, Local<Integer>* output) {
+  auto isolate = Isolate::GetCurrent();
+  *output = Integer::NewFromUnsigned(isolate, number);
+  return true;
+}
+
 template <class T>
 inline T UnwrapOr(MaybeLocal<Value> value, T default_) {
   T result;

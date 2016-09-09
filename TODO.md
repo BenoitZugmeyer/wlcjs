@@ -82,8 +82,8 @@ Output API
 - [ ] `const struct wlc_size* wlc_output_get_virtual_resolution(wlc_handle output)`
 - [x] `void wlc_output_set_resolution(wlc_handle output, const struct wlc_size *resolution, uint32_t scale)`
 - [ ] `uint32_t wlc_output_get_scale(wlc_handle output)`
-- [ ] `uint32_t wlc_output_get_mask(wlc_handle output)`
-- [ ] `void wlc_output_set_mask(wlc_handle output, uint32_t mask)`
+- [x] `uint32_t wlc_output_get_mask(wlc_handle output)`
+- [x] `void wlc_output_set_mask(wlc_handle output, uint32_t mask)`
 - [x] `const wlc_handle* wlc_output_get_views(wlc_handle output, size_t *out_memb)`
 - [ ] `wlc_handle* wlc_output_get_mutable_views(wlc_handle output, size_t *out_memb)`
 - [ ] `bool wlc_output_set_views(wlc_handle output, const wlc_handle *views, size_t memb)`
@@ -100,8 +100,8 @@ View API
 - [x] `void wlc_view_send_below(wlc_handle view, wlc_handle other)`
 - [x] `void wlc_view_bring_above(wlc_handle view, wlc_handle other)`
 - [x] `void wlc_view_bring_to_front(wlc_handle view)`
-- [ ] `uint32_t wlc_view_get_mask(wlc_handle view)`
-- [ ] `void wlc_view_set_mask(wlc_handle view, uint32_t mask)`
+- [x] `uint32_t wlc_view_get_mask(wlc_handle view)`
+- [x] `void wlc_view_set_mask(wlc_handle view, uint32_t mask)`
 - [x] `const struct wlc_geometry* wlc_view_get_geometry(wlc_handle view)`
 - [ ] `void wlc_view_get_visible_geometry(wlc_handle view, struct wlc_geometry *out_geometry)`
 - [x] `void wlc_view_set_geometry(wlc_handle view, uint32_t edges, const struct wlc_geometry *geometry)`
