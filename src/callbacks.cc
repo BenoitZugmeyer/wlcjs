@@ -129,6 +129,25 @@ void view_request_move_cb(
   CallMeMaybe("viewRequestMove", 2, argv);
 }
 
+void view_request_resize_cb(
+    wlc_handle view,
+    uint32_t edges,
+    const wlc_point *point) {
+  MK_SCOPE
+
+  Local<Integer> edges_js;
+  Local<Object> point_js;
+  if (!TryCast(edges, &edges_js)) return;
+  if (!TryCast(point, &point_js)) return;
+
+  Local<Value> argv[] = {
+    Number::New(isolate, view),
+    edges_js,
+    point_js,
+  };
+  CallMeMaybe("viewRequestResize", 3, argv);
+}
+
 bool keyboard_key_cb(
     wlc_handle view,
     uint32_t time,
@@ -237,7 +256,7 @@ void init() {
   /* wlc_set_view_request_geometry_cb(view_request_geometry_cb); */
   /* wlc_set_view_request_state_cb(view_request_state_cb); */
   wlc_set_view_request_move_cb(view_request_move_cb);
-  /* wlc_set_view_request_resize_cb(view_request_resize_cb); */
+  wlc_set_view_request_resize_cb(view_request_resize_cb);
   /* wlc_set_view_render_pre_cb(view_render_pre_cb); */
   /* wlc_set_view_render_post_cb(view_render_post_cb); */
   /* wlc_set_view_properties_updated_cb(view_properties_updated_cb); */
