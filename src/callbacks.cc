@@ -114,6 +114,22 @@ void view_move_to_output_cb(
   CallMeMaybe("viewMoveToOutput", 3, argv);
 }
 
+void view_request_geometry_cb(
+    wlc_handle view,
+    const struct wlc_geometry* geometry) {
+  MK_SCOPE
+
+  Local<Object> geometry_js;
+
+  if (!TryCast(geometry, &geometry_js)) return;
+
+  Local<Value> argv[] = {
+    Number::New(isolate, view),
+    geometry_js,
+  };
+  CallMeMaybe("viewRequestGeometry", 2, argv);
+}
+
 void view_request_move_cb(
     wlc_handle view,
     const wlc_point *point) {
@@ -253,7 +269,7 @@ void init() {
   wlc_set_view_destroyed_cb(view_destroyed_cb);
   wlc_set_view_focus_cb(view_focus_cb);
   wlc_set_view_move_to_output_cb(view_move_to_output_cb);
-  /* wlc_set_view_request_geometry_cb(view_request_geometry_cb); */
+  wlc_set_view_request_geometry_cb(view_request_geometry_cb);
   /* wlc_set_view_request_state_cb(view_request_state_cb); */
   wlc_set_view_request_move_cb(view_request_move_cb);
   wlc_set_view_request_resize_cb(view_request_resize_cb);

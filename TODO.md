@@ -34,7 +34,7 @@ Callbacks API
 - [x] `void wlc_set_view_destroyed_cb(void (*cb)(wlc_handle view))`
 - [x] `void wlc_set_view_focus_cb(void (*cb)(wlc_handle view, bool focus))`
 - [x] `void wlc_set_view_move_to_output_cb(void (*cb)(wlc_handle view, wlc_handle from_output, wlc_handle to_output))`
-- [ ] `void wlc_set_view_request_geometry_cb(void (*cb)(wlc_handle view, const struct wlc_geometry*))`
+- [x] `void wlc_set_view_request_geometry_cb(void (*cb)(wlc_handle view, const struct wlc_geometry*))`
 - [ ] `void wlc_set_view_request_state_cb(void (*cb)(wlc_handle view, enum wlc_view_state_bit, bool toggle))`
 - [x] `void wlc_set_view_request_move_cb(void (*cb)(wlc_handle view, const struct wlc_point*))`
 - [x] `void wlc_set_view_request_resize_cb(void (*cb)(wlc_handle view, uint32_t edges, const struct wlc_point*))`
