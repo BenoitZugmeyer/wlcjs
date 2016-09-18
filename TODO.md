@@ -78,8 +78,8 @@ Output API
 - [x] `const char* wlc_output_get_name(wlc_handle output)`
 - [ ] `bool wlc_output_get_sleep(wlc_handle output)`
 - [ ] `void wlc_output_set_sleep(wlc_handle output, bool sleep)`
-- [ ] `const struct wlc_size* wlc_output_get_resolution(wlc_handle output)`
-- [ ] `const struct wlc_size* wlc_output_get_virtual_resolution(wlc_handle output)`
+- [x] `const struct wlc_size* wlc_output_get_resolution(wlc_handle output)`
+- [x] `const struct wlc_size* wlc_output_get_virtual_resolution(wlc_handle output)`
 - [x] `void wlc_output_set_resolution(wlc_handle output, const struct wlc_size *resolution, uint32_t scale)`
 - [ ] `uint32_t wlc_output_get_scale(wlc_handle output)`
 - [x] `uint32_t wlc_output_get_mask(wlc_handle output)`

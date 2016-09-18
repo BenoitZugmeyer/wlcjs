@@ -216,6 +216,17 @@ inline bool TryCast(Local<Value> desc, wlc_point* point) {
     Unwrap(desc_object->Get(context, NewString("y")), &point->y));
 }
 
+inline bool TryCast(Local<Value> desc, wlc_size* size) {
+  Local<Object> desc_object;
+  if (!TryCast(desc, &desc_object)) return false;
+
+  auto context = Isolate::GetCurrent()->GetCurrentContext();
+
+  return (
+    Unwrap(desc_object->Get(context, NewString("height")), &size->h) &&
+    Unwrap(desc_object->Get(context, NewString("width")), &size->w));
+}
+
 template <class T>
 inline bool TryCast(const T* arr, size_t memb, Local<Array>* output) {
   auto isolate = Isolate::GetCurrent();

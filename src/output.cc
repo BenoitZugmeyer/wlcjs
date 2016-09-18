@@ -30,6 +30,34 @@ METHOD(GetResolution) {
   RETURN(resolution_js);
 }
 
+METHOD(GetVirtualResolution) {
+  UNWRAP_OUTPUT
+
+  const wlc_size* resolution = wlc_output_get_virtual_resolution(output);
+  if (!resolution) return;
+
+  Local<Object> resolution_js;
+  if (!TryCast(resolution, &resolution_js)) return;
+
+  RETURN(resolution_js);
+}
+
+METHOD(SetResolution) {
+  UNWRAP_OUTPUT
+
+  wlc_size resolution;
+  uint32_t scale;
+  if (!TryCast(info[1], &resolution)) {
+    THROW(TypeError, "Second argument must be a resolution");
+  }
+
+  if (!TryCast(info[2], &scale)) {
+    THROW(TypeError, "Third argument must be a Uint32");
+  }
+
+  wlc_output_set_resolution(output, &resolution, scale);
+}
+
 METHOD(GetMask) {
   UNWRAP_OUTPUT
 
@@ -67,6 +95,8 @@ METHOD(GetViews) {
 void Export(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getName", GetName);
   NODE_SET_METHOD(exports, "getResolution", GetResolution);
+  NODE_SET_METHOD(exports, "getVirtualResolution", GetVirtualResolution);
+  NODE_SET_METHOD(exports, "setResolution", SetResolution);
   NODE_SET_METHOD(exports, "getMask", GetMask);
   NODE_SET_METHOD(exports, "setMask", SetMask);
   NODE_SET_METHOD(exports, "getViews", GetViews);
