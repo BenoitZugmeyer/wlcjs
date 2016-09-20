@@ -108,28 +108,30 @@ inline bool TryCast(Local<Value> desc, wlc_geometry* geometry) {
     Unwrap(desc_object->Get(context, NewString("height")), &geometry->size.h));
 }
 
-inline bool TryCast(const wlc_geometry* geometry, Local<Object>* output) {
+inline bool TryCast(const wlc_geometry* geometry, Local<Value>* output) {
   auto isolate = Isolate::GetCurrent();
   auto context = isolate->GetCurrentContext();
 
-  *output = Object::New(isolate);
+  auto object = Object::New(isolate);
+  *output = object;
+
   return (
-    (*output)->Set(
+    object->Set(
       context,
       NewString("x"),
       Integer::New(isolate, geometry->origin.x)).IsJust() &&
 
-    (*output)->Set(
+    object->Set(
       context,
       NewString("y"),
       Integer::New(isolate, geometry->origin.y)).IsJust() &&
 
-    (*output)->Set(
+    object->Set(
       context,
       NewString("width"),
       Integer::New(isolate, geometry->size.w)).IsJust() &&
 
-    (*output)->Set(
+    object->Set(
       context,
       NewString("height"),
       Integer::New(isolate, geometry->size.h)).IsJust());
@@ -148,58 +150,62 @@ inline bool TryCast(wlc_handle value, Local<Value>* dest) {
   return true;
 }
 
-inline bool TryCast(const wlc_size* size, Local<Object>* output) {
+inline bool TryCast(const wlc_size* size, Local<Value>* output) {
   if (!size) return false;
 
   auto isolate = Isolate::GetCurrent();
   auto context = isolate->GetCurrentContext();
 
-  *output = Object::New(isolate);
+  auto object = Object::New(isolate);
+  *output = object;
+
   return (
-    (*output)->Set(
+    object->Set(
       context,
       NewString("width"),
       Integer::New(isolate, size->w)).IsJust() &&
 
-    (*output)->Set(
+    object->Set(
       context,
       NewString("height"),
       Integer::New(isolate, size->h)).IsJust());
 }
 
-inline bool TryCast(const wlc_modifiers* modifiers, Local<Object>* output) {
+inline bool TryCast(const wlc_modifiers* modifiers, Local<Value>* output) {
   if (!modifiers) return false;
 
   auto isolate = Isolate::GetCurrent();
   auto context = isolate->GetCurrentContext();
 
-  *output = Object::New(isolate);
+  auto object = Object::New(isolate);
+  *output = object;
   return (
-    (*output)->Set(
+    object->Set(
       context,
       NewString("mods"),
       Integer::New(isolate, modifiers->mods)).IsJust() &&
 
-    (*output)->Set(
+    object->Set(
       context,
       NewString("height"),
       Integer::New(isolate, modifiers->leds)).IsJust());
 }
 
-inline bool TryCast(const wlc_point* point, Local<Object>* output) {
+inline bool TryCast(const wlc_point* point, Local<Value>* output) {
   if (!point) return false;
 
   auto isolate = Isolate::GetCurrent();
   auto context = isolate->GetCurrentContext();
 
-  *output = Object::New(isolate);
+  auto object = Object::New(isolate);
+  *output = object;
   return (
-    (*output)->Set(
+    object->Set(
       context,
       NewString("x"),
       Integer::New(isolate, point->x)).IsJust() &&
 
-    (*output)->Set(
+    object->Set(
       context,
       NewString("y"),
       Integer::New(isolate, point->y)).IsJust());

@@ -3,7 +3,6 @@
 // in the LICENSE file.
 
 #include "./types.h"
-#include "./callbacks.h"
 #include "./util.h"
 #include "./state.h"
 
@@ -39,8 +38,6 @@ METHOD(Init) {
   if (~state & STATE_UNINITIALIZED) THROW(Error, "Can't call init twice");
 
   wlc_log_set_handler(log_handler);
-
-  Callbacks::init();
 
   if (!wlc_init()) THROW(Error, "Failed to initialize wlc");
 

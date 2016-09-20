@@ -2,6 +2,8 @@
 // Use of this source code is governed by a MIT-style license that can be found
 // in the LICENSE file.
 
+#include <functional>
+
 #include "./callbacks.h"
 #include "./util.h"
 #include "./types.h"
@@ -9,159 +11,215 @@
 namespace wlcjs {
 namespace Callbacks {
 
-SimplePersistent<Object> persistent_callbacks;
+enum callback_types_t {
+  output_created_type,
+  output_destroyed_type,
+  output_focus_type,
+  output_resolution_type,
+  output_render_pre_type,
+  output_render_post_type,
+  output_context_created_type,
+  output_context_destroyed_type,
+  view_created_type,
+  view_destroyed_type,
+  view_focus_type,
+  view_move_to_output_type,
+  view_request_geometry_type,
+  view_request_state_type,
+  view_request_move_type,
+  view_request_resize_type,
+  view_render_pre_type,
+  view_render_post_type,
+  view_properties_updated_type,
+  keyboard_key_type,
+  pointer_button_type,
+  pointer_scroll_type,
+  pointer_motion_type,
+  touch_type,
+  compositor_ready_type,
+  compositor_terminate_type,
+  input_created_type,
+  input_destroyed_type,
 
-#define MK_SCOPE\
-  ISOLATE(persistent_callbacks); \
-  HandleScope scope(isolate);
+  callback_types_count,
+};
 
-MaybeLocal<Value> CallMeMaybe(const char* name, int argc, Local<Value> argv[]) {
-  ISOLATE(persistent_callbacks);
-  Local<Object> callbacks = persistent_callbacks.Unwrap();
-  Local<Function> v;
+SimplePersistent<Function> persistent_callbacks[callback_types_count];
 
-  if (!Unwrap(
-        callbacks->Get(isolate->GetCurrentContext(), NewString(name)),
-        &v)) {
-    return MaybeLocal<Value>();
+bool CallMeMaybe(
+    callback_types_t c,
+    const unsigned int argc,
+    std::function<void (Isolate*, Local<Value>*)> args_formatter,
+    bool default_=false) {
+
+  if (persistent_callbacks[c].IsEmpty()) {
+    return default_;
   }
 
-  return v.As<Function>()->Call(
+  ISOLATE(persistent_callbacks[c]);
+  HandleScope scope(isolate);
+
+  Local<Value> argv[argc];
+  args_formatter(isolate, argv);
+
+  auto maybe = persistent_callbacks[c].Unwrap()->Call(
       isolate->GetCurrentContext(),
       Null(isolate),
       argc,
       argv);
+
+  return UnwrapOr(maybe, default_);
+}
+
+template <class T>
+inline Local<Value> TryCastOrNull(Isolate* isolate, T input) {
+  Local<Value> output;
+  if (!TryCast(input, &output)) {
+    output = Null(isolate);
+  }
+  return output;
+}
+
+template <class T>
+inline Local<Value> TryCastOrNull(Isolate* isolate, T* input, size_t memb) {
+  Local<Array> output;
+  if (!TryCast(input, memb, &output)) return Null(isolate);
+  return output;
 }
 
 bool output_created_cb(wlc_handle output) {
-  MK_SCOPE
-  Local<Value> argv[] = {
-    Number::New(isolate, output),
-  };
-  return UnwrapOr(CallMeMaybe("outputCreated", 1, argv), true);
+  return CallMeMaybe(
+      output_created_type,
+      1,
+      [=](Isolate* isolate, Local<Value>* args) {
+        args[0] = Number::New(isolate, output);
+      },
+      true
+  );
 }
 
 void output_destroyed_cb(wlc_handle output) {
-  MK_SCOPE
-  Local<Value> argv[] = {
-    Number::New(isolate, output),
-  };
-  CallMeMaybe("outputDestroyed", 1, argv);
+  CallMeMaybe(
+      output_destroyed_type,
+      1,
+      [=](Isolate* isolate, Local<Value>* args) {
+        args[0] = Number::New(isolate, output);
+      }
+  );
 }
 
 void output_focus_cb(wlc_handle output, bool focus) {
-  MK_SCOPE
-  Local<Value> argv[] = {
-    Number::New(isolate, output),
-    Boolean::New(isolate, focus),
-  };
-  CallMeMaybe("outputFocus", 2, argv);
+  CallMeMaybe(
+      output_focus_type,
+      2,
+      [=](Isolate* isolate, Local<Value>* args) {
+        args[0] = Number::New(isolate, output);
+        args[1] = Boolean::New(isolate, focus);
+      }
+  );
 }
 
 void output_resolution_cb(
     wlc_handle output,
     const wlc_size* from,
     const wlc_size* to) {
-  MK_SCOPE
-  Local<Object> from_js;
-  Local<Object> to_js;
-  if (!TryCast(from, &from_js)) return;
-  if (!TryCast(to, &to_js)) return;
-
-  Local<Value> argv[] = {
-    Number::New(isolate, output),
-    from_js,
-    to_js,
-  };
-  CallMeMaybe("outputResolution", 3, argv);
+  CallMeMaybe(
+      output_resolution_type,
+      3,
+      [=](Isolate* isolate, Local<Value>* args) {
+        args[0] = Number::New(isolate, output);
+        args[1] = TryCastOrNull(isolate, from);
+        args[2] = TryCastOrNull(isolate, to);
+      }
+  );
 }
 
 bool view_created_cb(wlc_handle view) {
-  MK_SCOPE
-  Local<Value> argv[] = {
-    Number::New(isolate, view),
-  };
-  return UnwrapOr(CallMeMaybe("viewCreated", 1, argv), true);
+  return CallMeMaybe(
+      view_created_type,
+      1,
+      [=](Isolate* isolate, Local<Value>* args) {
+        args[0] = Number::New(isolate, view);
+      },
+      true
+  );
 }
 
 void view_destroyed_cb(wlc_handle view) {
-  MK_SCOPE
-  Local<Value> argv[] = {
-    Number::New(isolate, view),
-  };
-  CallMeMaybe("viewDestroyed", 1, argv);
+  CallMeMaybe(
+      view_destroyed_type,
+      1,
+      [=](Isolate* isolate, Local<Value>* args) {
+        args[0] = Number::New(isolate, view);
+      }
+  );
 }
 
 void view_focus_cb(wlc_handle view, bool focus) {
-  MK_SCOPE
-  Local<Value> argv[] = {
-    Number::New(isolate, view),
-    Boolean::New(isolate, focus),
-  };
-  CallMeMaybe("viewFocus", 2, argv);
+  CallMeMaybe(
+      view_focus_type,
+      2,
+      [=](Isolate* isolate, Local<Value>* args) {
+        args[0] = Number::New(isolate, view);
+        args[1] = Boolean::New(isolate, focus);
+      }
+  );
 }
 
 void view_move_to_output_cb(
     wlc_handle view,
     wlc_handle from_output,
     wlc_handle to_output) {
-  MK_SCOPE
-  Local<Value> argv[] = {
-    Number::New(isolate, view),
-    Number::New(isolate, from_output),
-    Number::New(isolate, to_output),
-  };
-  CallMeMaybe("viewMoveToOutput", 3, argv);
+  CallMeMaybe(
+      view_move_to_output_type,
+      3,
+      [=](Isolate* isolate, Local<Value>* args) {
+        args[0] = Number::New(isolate, view);
+        args[1] = Number::New(isolate, from_output);
+        args[2] = Number::New(isolate, to_output);
+      }
+  );
 }
 
 void view_request_geometry_cb(
     wlc_handle view,
     const struct wlc_geometry* geometry) {
-  MK_SCOPE
-
-  Local<Object> geometry_js;
-
-  if (!TryCast(geometry, &geometry_js)) return;
-
-  Local<Value> argv[] = {
-    Number::New(isolate, view),
-    geometry_js,
-  };
-  CallMeMaybe("viewRequestGeometry", 2, argv);
+  CallMeMaybe(
+      view_request_geometry_type,
+      2,
+      [=](Isolate* isolate, Local<Value>* args) {
+        args[0] = Number::New(isolate, view);
+        args[1] = TryCastOrNull(isolate, geometry);
+      }
+  );
 }
 
 void view_request_move_cb(
     wlc_handle view,
     const wlc_point *point) {
-  MK_SCOPE
-
-  Local<Object> point_js;
-  if (!TryCast(point, &point_js)) return;
-
-  Local<Value> argv[] = {
-    Number::New(isolate, view),
-    point_js,
-  };
-  CallMeMaybe("viewRequestMove", 2, argv);
+  CallMeMaybe(
+      view_request_move_type,
+      2,
+      [=](Isolate* isolate, Local<Value>* args) {
+        args[0] = Number::New(isolate, view);
+        args[1] = TryCastOrNull(isolate, point);
+      }
+  );
 }
 
 void view_request_resize_cb(
     wlc_handle view,
     uint32_t edges,
     const wlc_point *point) {
-  MK_SCOPE
-
-  Local<Integer> edges_js;
-  Local<Object> point_js;
-  if (!TryCast(edges, &edges_js)) return;
-  if (!TryCast(point, &point_js)) return;
-
-  Local<Value> argv[] = {
-    Number::New(isolate, view),
-    edges_js,
-    point_js,
-  };
-  CallMeMaybe("viewRequestResize", 3, argv);
+  CallMeMaybe(
+      view_request_resize_type,
+      3,
+      [=](Isolate* isolate, Local<Value>* args) {
+        args[0] = Number::New(isolate, view);
+        args[1] = TryCastOrNull(isolate, edges);
+        args[2] = TryCastOrNull(isolate, point);
+      }
+  );
 }
 
 bool keyboard_key_cb(
@@ -170,18 +228,17 @@ bool keyboard_key_cb(
     const wlc_modifiers* modifiers,
     uint32_t key,
     wlc_key_state key_state) {
-  MK_SCOPE
-  Local<Object> modifiers_js;
-  if (!TryCast(modifiers, &modifiers_js)) return false;
-
-  Local<Value> argv[] = {
-    Number::New(isolate, view),
-    Number::New(isolate, time),
-    modifiers_js,
-    Number::New(isolate, key),
-    Number::New(isolate, key_state),
-  };
-  return UnwrapOr(CallMeMaybe("keyboardKey", 5, argv), false);
+  return CallMeMaybe(
+      keyboard_key_type,
+      5,
+      [=](Isolate* isolate, Local<Value>* args) {
+        args[0] = Number::New(isolate, view);
+        args[1] = Number::New(isolate, time);
+        args[2] = TryCastOrNull(isolate, modifiers);
+        args[3] = Number::New(isolate, key);
+        args[4] = Number::New(isolate, key_state);
+      }
+    );
 }
 
 bool pointer_button_cb(
@@ -192,99 +249,111 @@ bool pointer_button_cb(
     enum wlc_button_state state,
     const struct wlc_point* origin) {
 
-  MK_SCOPE
-  Local<Object> modifiers_js;
-  Local<Object> origin_js;
-  if (!TryCast(modifiers, &modifiers_js)) return false;
-  if (!TryCast(origin, &origin_js)) return false;
-
-  Local<Value> argv[] = {
-    Number::New(isolate, view),
-    Number::New(isolate, time),
-    modifiers_js,
-    Number::New(isolate, button),
-    Number::New(isolate, state),
-    origin_js,
-  };
-  return UnwrapOr(CallMeMaybe("pointerButton", 6, argv), false);
+  return CallMeMaybe(
+      pointer_button_type,
+      6,
+      [=](Isolate* isolate, Local<Value>* args) {
+        args[0] = Number::New(isolate, view);
+        args[1] = Number::New(isolate, time);
+        args[2] = TryCastOrNull(isolate, modifiers);
+        args[3] = Number::New(isolate, button);
+        args[4] = Number::New(isolate, state);
+        args[5] = TryCastOrNull(isolate, origin);
+      }
+    );
 }
 
 bool pointer_scroll_cb(wlc_handle view, uint32_t time,
     const struct wlc_modifiers* modifiers, uint8_t axis_bits,
     double amount[2]) {
 
-  MK_SCOPE
-  auto context = isolate->GetCurrentContext();
-  Local<Object> modifiers_js;
-  if (!TryCast(modifiers, &modifiers_js)) return false;
-
-  Local<Array> amount_js = Array::New(isolate, 2);
-  if (amount_js->Set(context, 0, Number::New(isolate, amount[0])).IsNothing() ||
-      amount_js->Set(context, 1, Number::New(isolate, amount[1])).IsNothing()) {
-    return false;
-  }
-
-  Local<Value> argv[] = {
-    Number::New(isolate, view),
-    Number::New(isolate, time),
-    modifiers_js,
-    Number::New(isolate, axis_bits),
-    amount_js,
-  };
-  return UnwrapOr(CallMeMaybe("pointerScroll", 5, argv), false);
+  return CallMeMaybe(
+      pointer_scroll_type,
+      5,
+      [=](Isolate* isolate, Local<Value>* args) {
+        args[0] = Number::New(isolate, view);
+        args[1] = Number::New(isolate, time);
+        args[2] = TryCastOrNull(isolate, modifiers);
+        args[3] = Number::New(isolate, axis_bits);
+        args[4] = TryCastOrNull(isolate, amount, 2);
+      }
+  );
 }
 
 bool pointer_motion_cb(wlc_handle view, uint32_t time,
     const struct wlc_point* origin) {
 
-  MK_SCOPE
-  Local<Object> origin_js;
-  if (!TryCast(origin, &origin_js)) return false;
+  return CallMeMaybe(
+      pointer_motion_type,
+      3,
+      [=](Isolate* isolate, Local<Value>* args) {
+        args[0] = Number::New(isolate, view);
+        args[1] = Number::New(isolate, time);
+        args[2] = TryCastOrNull(isolate, origin);
+      }
+  );
+}
 
-  Local<Value> argv[] = {
-    Number::New(isolate, view),
-    Number::New(isolate, time),
-    origin_js,
-  };
-  return UnwrapOr(CallMeMaybe("pointerMotion", 3, argv), false);
+void set_callback(
+    callback_types_t c,
+    const FunctionCallbackInfo<Value>& info,
+    std::function<void (bool)> setter) {
+  Local<Function> callback;
+
+  if (info[0]->IsNull() || info[0]->IsUndefined()) {
+    setter(false);
+    persistent_callbacks[c].Reset();
+  }
+  else if (TryCast(info[0], &callback)) {
+    setter(true);
+    persistent_callbacks[c].Reset(info.GetIsolate(), callback);
+  }
+  else {
+    THROW(TypeError, "Argument should be a function");
+  }
 }
 
 
 void Export(Local<Object> exports) {
-  Isolate* isolate = Isolate::GetCurrent();
-  persistent_callbacks.Reset(isolate, exports);
-}
 
+#define __DEFINE_SETTER(name, js_name) \
+  NODE_SET_METHOD(exports, js_name, [](const FunctionCallbackInfo<Value>& info) { \
+      set_callback(name ## _type, info, [](bool should_set) {\
+        wlc_set_ ## name ## _cb(should_set ? name ## _cb : NULL); \
+      }); \
+  });
 
-void init() {
-  wlc_set_output_created_cb(output_created_cb);
-  wlc_set_output_destroyed_cb(output_destroyed_cb);
-  wlc_set_output_focus_cb(output_focus_cb);
-  wlc_set_output_resolution_cb(output_resolution_cb);
-  /* wlc_set_output_render_pre_cb(output_render_pre_cb); */
-  /* wlc_set_output_render_post_cb(output_render_post_cb); */
-  /* wlc_set_output_context_created_cb(output_context_created_cb); */
-  /* wlc_set_output_context_destroyed_cb(output_context_destroyed_cb); */
-  wlc_set_view_created_cb(view_created_cb);
-  wlc_set_view_destroyed_cb(view_destroyed_cb);
-  wlc_set_view_focus_cb(view_focus_cb);
-  wlc_set_view_move_to_output_cb(view_move_to_output_cb);
-  wlc_set_view_request_geometry_cb(view_request_geometry_cb);
-  /* wlc_set_view_request_state_cb(view_request_state_cb); */
-  wlc_set_view_request_move_cb(view_request_move_cb);
-  wlc_set_view_request_resize_cb(view_request_resize_cb);
-  /* wlc_set_view_render_pre_cb(view_render_pre_cb); */
-  /* wlc_set_view_render_post_cb(view_render_post_cb); */
-  /* wlc_set_view_properties_updated_cb(view_properties_updated_cb); */
-  wlc_set_keyboard_key_cb(keyboard_key_cb);
-  wlc_set_pointer_button_cb(pointer_button_cb);
-  wlc_set_pointer_scroll_cb(pointer_scroll_cb);
-  wlc_set_pointer_motion_cb(pointer_motion_cb);
-  /* wlc_set_touch_cb(touch_cb); */
-  /* wlc_set_compositor_ready_cb(compositor_ready_cb); */
-  /* wlc_set_compositor_terminate_cb(compositor_terminate_cb); */
-  /* wlc_set_input_created_cb(input_created_cb); */
-  /* wlc_set_input_destroyed_cb(input_destroyed_cb); */
+  __DEFINE_SETTER(output_created, "setOutputCreatedCb");
+  __DEFINE_SETTER(output_destroyed, "setOutputDestroyedCb");
+
+  __DEFINE_SETTER(output_focus, "setOutputFocusCb");
+  __DEFINE_SETTER(output_resolution, "setOutputResolutionCb");
+  /* __DEFINE_SETTER(output_render_pre, "setOutputRenderPreCb"); */
+  /* __DEFINE_SETTER(output_render_post, "setOutputRenderPostCb"); */
+  /* __DEFINE_SETTER(output_context_created, "setOutputContextCreatedCb"); */
+  /* __DEFINE_SETTER(output_context_destroyed, "setOutputContextDestroyedCb"); */
+  __DEFINE_SETTER(view_created, "setViewCreatedCb");
+  __DEFINE_SETTER(view_destroyed, "setViewDestroyedCb");
+  __DEFINE_SETTER(view_focus, "setViewFocusCb");
+  __DEFINE_SETTER(view_move_to_output, "setViewMoveToOutputCb");
+  __DEFINE_SETTER(view_request_geometry, "setViewRequestGeometryCb");
+  /* __DEFINE_SETTER(view_request_state, "setViewRequestStateCb"); */
+  __DEFINE_SETTER(view_request_move, "setViewRequestMoveCb");
+  __DEFINE_SETTER(view_request_resize, "setViewRequestResizeCb");
+  /* __DEFINE_SETTER(view_render_pre, "setViewRenderPreCb"); */
+  /* __DEFINE_SETTER(view_render_post, "setViewRenderPostCb"); */
+  /* __DEFINE_SETTER(view_properties_updated, "setViewPropertiesUpdatedCb"); */
+  __DEFINE_SETTER(keyboard_key, "setKeyboardKeyCb");
+  __DEFINE_SETTER(pointer_button, "setPointerButtonCb");
+  __DEFINE_SETTER(pointer_scroll, "setPointerScrollCb");
+  __DEFINE_SETTER(pointer_motion, "setPointerMotionCb");
+  /* __DEFINE_SETTER(touch, "setToutchCb"); */
+  /* __DEFINE_SETTER(compositor_ready, "setCompositorReadyCb"); */
+  /* __DEFINE_SETTER(compositor_terminate, "setCompositorTerminateCb"); */
+  /* __DEFINE_SETTER(input_created, "setInputCreatedCb"); */
+  /* __DEFINE_SETTER(input_destroyed, "setInputDestroyedCb"); */
+
+#undef __DEFINE_SETTER
 }
 
 

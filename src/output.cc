@@ -24,7 +24,7 @@ METHOD(GetResolution) {
   const wlc_size* resolution = wlc_output_get_resolution(output);
   if (!resolution) return;
 
-  Local<Object> resolution_js;
+  Local<Value> resolution_js;
   if (!TryCast(resolution, &resolution_js)) return;
 
   RETURN(resolution_js);
@@ -36,7 +36,7 @@ METHOD(GetVirtualResolution) {
   const wlc_size* resolution = wlc_output_get_virtual_resolution(output);
   if (!resolution) return;
 
-  Local<Object> resolution_js;
+  Local<Value> resolution_js;
   if (!TryCast(resolution, &resolution_js)) return;
 
   RETURN(resolution_js);

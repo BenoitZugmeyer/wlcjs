@@ -10,8 +10,6 @@
 namespace wlcjs {
 namespace Callbacks {
 
-void init();
-
 void Export(Local<Object> exports);
 
 }

@@ -95,7 +95,7 @@ METHOD(GetGeometry) {
   const wlc_geometry* geometry = wlc_view_get_geometry(view);
   if (!geometry) return;
 
-  Local<Object> result;
+  Local<Value> result;
   if (!TryCast(geometry, &result)) return;
 
   RETURN(result);
