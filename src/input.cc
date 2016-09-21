@@ -61,7 +61,7 @@ METHOD(GetKeysymNameForKey) {
 
 METHOD(SetPointerPosition) {
   if (~state & STATE_INITIALIZED) {
-    THROW( Error, "'init' has to be called before calling 'setPointerPosition'");
+    THROW(Error, "'init' has to be called before calling 'setPointerPosition'");
   }
 
   wlc_point point;

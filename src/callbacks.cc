@@ -49,8 +49,8 @@ SimplePersistent<Function> persistent_callbacks[callback_types_count];
 bool CallMeMaybe(
     callback_types_t c,
     const unsigned int argc,
-    std::function<void (Isolate*, Local<Value>*)> args_formatter,
-    bool default_=false) {
+    std::function<void(Isolate*, Local<Value>*)> args_formatter,
+    bool default_ = false) {
 
   if (persistent_callbacks[c].IsEmpty()) {
     return default_;
@@ -94,8 +94,7 @@ bool output_created_cb(wlc_handle output) {
       [=](Isolate* isolate, Local<Value>* args) {
         args[0] = Number::New(isolate, output);
       },
-      true
-  );
+      true);
 }
 
 void output_destroyed_cb(wlc_handle output) {
@@ -104,8 +103,7 @@ void output_destroyed_cb(wlc_handle output) {
       1,
       [=](Isolate* isolate, Local<Value>* args) {
         args[0] = Number::New(isolate, output);
-      }
-  );
+      });
 }
 
 void output_focus_cb(wlc_handle output, bool focus) {
@@ -115,8 +113,7 @@ void output_focus_cb(wlc_handle output, bool focus) {
       [=](Isolate* isolate, Local<Value>* args) {
         args[0] = Number::New(isolate, output);
         args[1] = Boolean::New(isolate, focus);
-      }
-  );
+      });
 }
 
 void output_resolution_cb(
@@ -130,8 +127,7 @@ void output_resolution_cb(
         args[0] = Number::New(isolate, output);
         args[1] = TryCastOrNull(isolate, from);
         args[2] = TryCastOrNull(isolate, to);
-      }
-  );
+      });
 }
 
 bool view_created_cb(wlc_handle view) {
@@ -141,8 +137,7 @@ bool view_created_cb(wlc_handle view) {
       [=](Isolate* isolate, Local<Value>* args) {
         args[0] = Number::New(isolate, view);
       },
-      true
-  );
+      true);
 }
 
 void view_destroyed_cb(wlc_handle view) {
@@ -151,8 +146,7 @@ void view_destroyed_cb(wlc_handle view) {
       1,
       [=](Isolate* isolate, Local<Value>* args) {
         args[0] = Number::New(isolate, view);
-      }
-  );
+      });
 }
 
 void view_focus_cb(wlc_handle view, bool focus) {
@@ -162,8 +156,7 @@ void view_focus_cb(wlc_handle view, bool focus) {
       [=](Isolate* isolate, Local<Value>* args) {
         args[0] = Number::New(isolate, view);
         args[1] = Boolean::New(isolate, focus);
-      }
-  );
+      });
 }
 
 void view_move_to_output_cb(
@@ -177,8 +170,7 @@ void view_move_to_output_cb(
         args[0] = Number::New(isolate, view);
         args[1] = Number::New(isolate, from_output);
         args[2] = Number::New(isolate, to_output);
-      }
-  );
+      });
 }
 
 void view_request_geometry_cb(
@@ -190,8 +182,7 @@ void view_request_geometry_cb(
       [=](Isolate* isolate, Local<Value>* args) {
         args[0] = Number::New(isolate, view);
         args[1] = TryCastOrNull(isolate, geometry);
-      }
-  );
+      });
 }
 
 void view_request_move_cb(
@@ -203,8 +194,7 @@ void view_request_move_cb(
       [=](Isolate* isolate, Local<Value>* args) {
         args[0] = Number::New(isolate, view);
         args[1] = TryCastOrNull(isolate, point);
-      }
-  );
+      });
 }
 
 void view_request_resize_cb(
@@ -218,8 +208,7 @@ void view_request_resize_cb(
         args[0] = Number::New(isolate, view);
         args[1] = TryCastOrNull(isolate, edges);
         args[2] = TryCastOrNull(isolate, point);
-      }
-  );
+      });
 }
 
 bool keyboard_key_cb(
@@ -237,8 +226,7 @@ bool keyboard_key_cb(
         args[2] = TryCastOrNull(isolate, modifiers);
         args[3] = Number::New(isolate, key);
         args[4] = Number::New(isolate, key_state);
-      }
-    );
+      });
 }
 
 bool pointer_button_cb(
@@ -259,8 +247,7 @@ bool pointer_button_cb(
         args[3] = Number::New(isolate, button);
         args[4] = Number::New(isolate, state);
         args[5] = TryCastOrNull(isolate, origin);
-      }
-    );
+      });
 }
 
 bool pointer_scroll_cb(wlc_handle view, uint32_t time,
@@ -276,8 +263,7 @@ bool pointer_scroll_cb(wlc_handle view, uint32_t time,
         args[2] = TryCastOrNull(isolate, modifiers);
         args[3] = Number::New(isolate, axis_bits);
         args[4] = TryCastOrNull(isolate, amount, 2);
-      }
-  );
+      });
 }
 
 bool pointer_motion_cb(wlc_handle view, uint32_t time,
@@ -290,48 +276,47 @@ bool pointer_motion_cb(wlc_handle view, uint32_t time,
         args[0] = Number::New(isolate, view);
         args[1] = Number::New(isolate, time);
         args[2] = TryCastOrNull(isolate, origin);
-      }
-  );
+      });
 }
 
 void set_callback(
     callback_types_t c,
     const FunctionCallbackInfo<Value>& info,
-    std::function<void (bool)> setter) {
+    std::function<void(bool)> setter) {
   Local<Function> callback;
 
   if (info[0]->IsNull() || info[0]->IsUndefined()) {
     setter(false);
     persistent_callbacks[c].Reset();
-  }
-  else if (TryCast(info[0], &callback)) {
+  } else if (TryCast(info[0], &callback)) {
     setter(true);
     persistent_callbacks[c].Reset(info.GetIsolate(), callback);
-  }
-  else {
+  } else {
     THROW(TypeError, "Argument should be a function");
   }
 }
 
 
 void Export(Local<Object> exports) {
-
 #define __DEFINE_SETTER(name, js_name) \
-  NODE_SET_METHOD(exports, js_name, [](const FunctionCallbackInfo<Value>& info) { \
-      set_callback(name ## _type, info, [](bool should_set) {\
-        wlc_set_ ## name ## _cb(should_set ? name ## _cb : NULL); \
-      }); \
-  });
+  NODE_SET_METHOD(\
+      exports, \
+      js_name, \
+      [](const FunctionCallbackInfo<Value>& info) { \
+        set_callback(name ## _type, info, [](bool should_set) {\
+          wlc_set_ ## name ## _cb(should_set ? name ## _cb : NULL); \
+        }); \
+      });
 
   __DEFINE_SETTER(output_created, "setOutputCreatedCb");
   __DEFINE_SETTER(output_destroyed, "setOutputDestroyedCb");
 
   __DEFINE_SETTER(output_focus, "setOutputFocusCb");
   __DEFINE_SETTER(output_resolution, "setOutputResolutionCb");
-  /* __DEFINE_SETTER(output_render_pre, "setOutputRenderPreCb"); */
-  /* __DEFINE_SETTER(output_render_post, "setOutputRenderPostCb"); */
-  /* __DEFINE_SETTER(output_context_created, "setOutputContextCreatedCb"); */
-  /* __DEFINE_SETTER(output_context_destroyed, "setOutputContextDestroyedCb"); */
+  // __DEFINE_SETTER(output_render_pre, "setOutputRenderPreCb");
+  // __DEFINE_SETTER(output_render_post, "setOutputRenderPostCb");
+  // __DEFINE_SETTER(output_context_created, "setOutputContextCreatedCb");
+  // __DEFINE_SETTER(output_context_destroyed, "setOutputContextDestroyedCb");
   __DEFINE_SETTER(view_created, "setViewCreatedCb");
   __DEFINE_SETTER(view_destroyed, "setViewDestroyedCb");
   __DEFINE_SETTER(view_focus, "setViewFocusCb");

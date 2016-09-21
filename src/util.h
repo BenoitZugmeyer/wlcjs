@@ -13,7 +13,6 @@ namespace wlcjs {
 template <class T>
 class SimplePersistent : public Persistent<T> {
  public:
-
   V8_INLINE void Reset() {
     this->isolate = NULL;
     Persistent<T>::Reset();
