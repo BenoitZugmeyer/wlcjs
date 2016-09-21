@@ -10,7 +10,7 @@ supported.
 Completion
 ----------
 
-See [TODO.md](TODO.md).
+See [TODO.md](https://github.com/BenoitZugmeyer/wlcjs/blob/master/TODO.md).
 
 Install
 -------
