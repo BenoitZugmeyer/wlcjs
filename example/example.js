@@ -1,6 +1,6 @@
 /**
  * This example is a direct port of the WLC example/example.c, to demonstrate
- * the differences between C API with the JS bindings.  It will follow
+ * the differences between the C API and the JS bindings.  It will follow
  * evolutions of the JS bindings and the upstream example.
  **/
 
