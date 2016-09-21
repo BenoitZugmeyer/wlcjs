@@ -1,6 +1,6 @@
 {
   "name": "wlcjs",
-  "version": "1.0.0-dev",
+  "version": "1.0.0-dev.0",
   "description": "WLC bindings for nodejs",
   "main": "lib/index.js",
   "scripts": {
